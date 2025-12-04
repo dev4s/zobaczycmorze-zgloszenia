@@ -1,23 +1,23 @@
 from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from django.shortcuts import reverse
-from .models import Zgloszenie, Wplata, Finanse
+from .models import Zgloszenie, Wplata, Finanse, Info
 from .mailers import send_simple_mail
 from django.template.loader import render_to_string
 
 @receiver(pre_save, sender=Zgloszenie)
 def zgloszenie_pre_save(sender, instance, **kwargs):
 	if not instance.pk:
-		instance_old_status = None
-		instance_old_wachta_id = None
+		instance._old_status = None
+		instance._old_wachta_id = None
 	else:
 		try:
 			old = Zgloszenie.objects.get(pk=instance.pk)
-			instance_old_status = old.status
-			instance_old_wachta_id = old.wachta_id
+			instance._old_status = old.status
+			instance._old_wachta_id = old.wachta_id
 		except Zgloszenie.DoesNotExist:
-			instance_old_status = None
-			instance_old_wachta_id = None
+			instance._old_status = None
+			instance._old_wachta_id = None
 
 
 @receiver(post_save, sender=Zgloszenie)
@@ -61,7 +61,7 @@ def wplata_post_save(sender, instance, created, **kwargs):
 		"finanse": finanse,
 		"link": f"{'http://localhost:8000'}" + reverse("zgloszenie_details", kwargs={"token": zgl.token}),
 	}
-	send_simple_mail(subject, instance.email, 'emails/wplata_created', context)
+	send_simple_mail(subject, zgl.email, 'emails/wplata_created', context)
 
 
 @receiver(post_save, sender=Zgloszenie)

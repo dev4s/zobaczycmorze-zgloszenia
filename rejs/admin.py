@@ -49,7 +49,7 @@ class WachtaForm(forms.ModelForm):
 			zg.save(update_fields=['wachta'])
 		return instance
 
-@admin.register(Wachta)
+#@admin.register(Wachta)
 class WachtaAdmin(admin.ModelAdmin):
 	form=WachtaForm
 	list_display = ('nazwa', 'rejs')
