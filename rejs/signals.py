@@ -69,3 +69,18 @@ def utworz_finanse_dla_zgloszenia(sender, instance, created, **kwargs):
 	if created and not hasattr(instance, "finanse"):
 		Finanse.objects.create(zgloszenie=instance, kwota_do_zaplaty=instance.rejs.cena)
 
+@receiver(post_save, sender=Info)
+def info_post_save(sender, instance, created, **kwargs):
+	if not created:
+		return
+	rejs = instance.rejs
+	zgloszenia = rejs.zgloszenia.all()
+	for z in zgloszenia:
+		subject = f"Nowa informacja dotycząca rejsu: {rejs.nazwa}"
+		context = {
+			"info": instance,
+			"zgl": z,
+			"rejs": rejs,
+			"link": reverse("zgloszenie_details", kwargs={"zgloszenie_id": z.token}),
+		}
+		send_simple_mail(subject, z.email, "emails/info_created", context)
