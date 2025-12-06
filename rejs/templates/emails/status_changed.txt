@@ -1,9 +1,0 @@
-Dzień dobry {{ zgl.imie}} {{ zgl.nazwisko }}
-Status twojego zgłoszenia na rejs {{ rejs.nazwa }} zmienił się.
-Poprzedni status: {{ old_status }}
-obecny status: {{zgl.status }}
-
-szczegóły zgłoszenia:
-{{ link }}
-
-Pozdrawiamy....

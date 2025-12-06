@@ -1,0 +1,10 @@
+Potwierdzamy zwrot wpłaconych przez Ciebie środków w wysokości {{ wplata.kwota }} zł.
+Środki trafią na konto, z którego dokonano wpłatę lub przekazem pocztowym jeśli w ten sposób została dokonana wpłata.
+
+Jeśli zgłosiłeś się na kilka wydarzeń, to zwracamy Twoją uwagę na to, że każde wydarzenie jest traktowana oddzielnie i dla każdego osobno rozliczane są wpłaty i osobno przeprowadzane kwalifikacje.
+
+Podsumowanie:
+Nazwa wydarzenia: {{ zgl.rejs.nazwa }}
+Saldo: {{ finanse.suma_wplat}} zł.
+
+{% include "emails/_footer.txt" %}

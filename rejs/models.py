@@ -35,7 +35,8 @@ class Wachta(models.Model):
 class Zgloszenie(models.Model):
 	statusy = [
 		("QUALIFIED", "zakfalifikowany"),
-		("NOT_QUALIFIED", "nie zakfalifikowany")
+		("NOT_QUALIFIED", "nie zakfalifikowany"),
+		("odrzócony", "odrzócony")
 	]
 	wzrok_statusy = [
 		("WIDZI", "widzący"),

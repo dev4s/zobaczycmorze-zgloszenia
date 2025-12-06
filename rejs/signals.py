@@ -27,17 +27,23 @@ def zgloszenie_post_save(sender, instance, created, **kwargs):
 		context = {"zgl": instance,
 			 "rejs": instance.rejs,
 			 "link": instance.get_absolute_url() if hasattr(instance, 'get_absolute_url') else None,}
-		send_simple_mail(subject, instance.email, "emails/zgloszenie_created", context)
+		send_simple_mail(subject, instance.email, "emails/zgloszenie_utworzone", context)
 		return
 	old_status = getattr(instance, "_old_status", None)
 	if old_status is not None and old_status != instance.status:
-		subject = f"zmiana statusu zgłoszenia {instance.rejs.nazwa}"
 		context = {"zgl": instance,
-			 "old_status": old_status,
-			 "new_status": instance.status,
-			 "link": f"{'http://localhost:8000'}" + reverse("zgloszenie_details", kwargs={"token": instance.token}),
-			 }
-		send_simple_mail(subject, instance.email, "emails/status_changed", context)
+			 	"old_status": old_status,
+			 	"new_status": instance.status,
+			 	"link": f"{'http://localhost:8000'}" + reverse("zgloszenie_details", kwargs={"token": instance.token}),
+			 	}
+
+		if instance.status in ["QUALIFIED", "zakfalifikowany"]:
+			subject = f"Potwierdzamy zakfalifikowanie na rejs  {instance.rejs.nazwa}"
+			send_simple_mail(subject, instance.email, "emails/zgloszenie_potwierdzone", context)
+		elif instance.status in ["odrzócony", "odrzócony"]:
+			subject = f"odrzócone zgłoszenie na rejs  {instance.rejs.nazwa}"
+			send_simple_mail(subject, instance.email, "emails/zgloszenie_odrzocone", context)
+		
 	old_wachta_id = getattr(instance, "_old_wachta_id", None)
 	if old_wachta_id is None and instance.wachta_id is not None:
 		subject = f"dodano do wachty {instance.wachta.nazwa}"
