@@ -8,18 +8,18 @@
 <body>
     <div>
         <h2>Twoje zgłoszenie</h2>
-<p><strong>Imie: </strong> {{zgloszenie.imie }}</p>
-<p><strong>nazwisko: </strong>{{ zgloszenie.nazwisko }}</p>
-<p><strong>email: </strong> {{zgloszenie.email }} </p>
-<p><strong>telefon: </strong> {{ zgloszenie.telefon }} </p>
-<p><strong>wzrok: </strong> {{zgloszenie.wzrok }} </p>
-<p><strong>status: </strong> {{zgloszenie.status}} </p>
+<p><strong>Imię:</strong> {{ zgloszenie.imie }}</p>
+<p><strong>Nazwisko:</strong> {{ zgloszenie.nazwisko }}</p>
+<p><strong>E-mail:</strong> {{ zgloszenie.email }}</p>
+<p><strong>Telefon:</strong> {{ zgloszenie.telefon }}</p>
+<p><strong>Wzrok:</strong> {{ zgloszenie.get_wzrok_display }}</p>
+<p><strong>Status:</strong> {{ zgloszenie.get_status_display }}</p>
 <section>
     <h3><strong>Wpłaty</strong></h3>
     <ul>
-        <li>cena: {{zgloszenie.rejs_cena }}</li>
-        <li>suma wpłat: {{zgloszenie.suma_wplat }}</li>
-        <li>pozostało do zapłaty: {{zgloszenie.do_zaplaty }}</li>
+        <li>Cena: {{ zgloszenie.rejs_cena }} zł</li>
+        <li>Suma wpłat: {{ zgloszenie.suma_wplat }} zł</li>
+        <li>Pozostało do zapłaty: {{ zgloszenie.do_zaplaty }} zł</li>
     </ul>
 </section>
 <h3> {{zgloszenie.rejs.nazwa}} </h3>
@@ -37,7 +37,7 @@
         <p>{{ o.text }}</p>
     </li>
     {% empty %}
-    <li>brak ogłoszeń</li>
+    <li>Brak ogłoszeń</li>
 {% endfor %}
 </ol>
 </section>
