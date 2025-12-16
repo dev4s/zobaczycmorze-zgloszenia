@@ -10,117 +10,179 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
+import sys
 from pathlib import Path
+
+# Próba załadowania .env dla uruchomień bez UV (fallback)
+# UV używa --env-file .env natywnie
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# ==============================================================================
+# Sprawdzenie konfiguracji środowiska
+# ==============================================================================
+_env_file = BASE_DIR / ".env"
+_secret_key = os.environ.get("SECRET_KEY")
+
+if not _env_file.exists() and not _secret_key:
+    print("=" * 70)
+    print("⚠️  UWAGA: Brak pliku .env!")
+    print("   Skopiuj .env.example do .env i uzupełnij wartości:")
+    print("   cp .env.example .env")
+    print("")
+    print("   Szczegóły konfiguracji znajdziesz w README.md")
+    print("=" * 70)
+    sys.exit("❌ BŁĄD: SECRET_KEY nie jest ustawiony. Aplikacja nie może wystartować.")
+
+
+# ==============================================================================
+# Ustawienia bezpieczeństwa
+# ==============================================================================
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8#t&#dnmk!emyxic15-hu!v_3po0&^&o4#sv_&smk*@vvba%!r'
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-not-for-production")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get("DEBUG", "True").lower() in ("true", "1", "yes")
 
-ALLOWED_HOSTS = []
+# Dozwolone hosty (z .env, oddzielone przecinkami)
+_allowed_hosts_str = os.environ.get("ALLOWED_HOSTS", "")
+ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts_str.split(",") if h.strip()]
+
+# URL strony (używany w linkach w emailach)
+SITE_URL = os.environ.get("SITE_URL", "http://localhost:8000")
 
 
+# ==============================================================================
 # Application definition
+# ==============================================================================
 
 INSTALLED_APPS = [
-	'rejs.apps.RejsConfig',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "rejs.apps.RejsConfig",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
 ]
 
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = 'zm_zgloszenia.urls'
+ROOT_URLCONF = "zm_zgloszenia.urls"
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'zm_zgloszenia.wsgi.application'
+WSGI_APPLICATION = "zm_zgloszenia.wsgi.application"
 
 
+# ==============================================================================
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+# ==============================================================================
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
 }
 
 
+# ==============================================================================
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
+# ==============================================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 
+# ==============================================================================
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
+# ==============================================================================
 
-LANGUAGE_CODE = 'pl-pl'
+LANGUAGE_CODE = "pl-pl"
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = "Europe/Warsaw"
 
 USE_I18N = True
 
 USE_TZ = True
 
 
+# ==============================================================================
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
+# ==============================================================================
 
-STATIC_URL = 'static/'
+STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "static"
+
+
+# ==============================================================================
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+# ==============================================================================
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = "noreply@zobaczyc.morze"
+
+# ==============================================================================
+# Email configuration
+# ==============================================================================
+
+# Domyślnie używamy backendu konsolowego (emaile wyświetlane w terminalu)
+# Na produkcji ustaw EMAIL_BACKEND i inne zmienne w .env
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() in ("true", "1", "yes")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@zobaczycmorze.pl")

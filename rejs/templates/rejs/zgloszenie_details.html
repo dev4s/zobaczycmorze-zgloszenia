@@ -1,46 +1,110 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Szczegóły zgłoszenia</title>
-</head>
-<body>
-    <div>
-        <h2>Twoje zgłoszenie</h2>
-<p><strong>Imie: </strong> {{zgloszenie.imie }}</p>
-<p><strong>nazwisko: </strong>{{ zgloszenie.nazwisko }}</p>
-<p><strong>email: </strong> {{zgloszenie.email }} </p>
-<p><strong>telefon: </strong> {{ zgloszenie.telefon }} </p>
-<p><strong>wzrok: </strong> {{zgloszenie.wzrok }} </p>
-<p><strong>status: </strong> {{zgloszenie.status}} </p>
-<section>
-    <h3><strong>Wpłaty</strong></h3>
-    <ul>
-        <li>cena: {{zgloszenie.rejs_cena }}</li>
-        <li>suma wpłat: {{zgloszenie.suma_wplat }}</li>
-        <li>pozostało do zapłaty: {{zgloszenie.do_zaplaty }}</li>
-    </ul>
+{% extends "rejs/base.html" %}
+
+{% block title %}Szczegóły zgłoszenia - {{ zgloszenie.rejs.nazwa }} - Zobaczyć Morze{% endblock %}
+
+{% block nav %}
+<a href="{% url 'index' %}">&larr; Powrót do listy rejsów</a>
+{% endblock %}
+
+{% block content %}
+<h1>Szczegóły Twojego zgłoszenia</h1>
+
+<!-- Baner statusu -->
+<div class="status-banner status-{{ zgloszenie.status|lower }}"
+     role="status"
+     aria-label="Status zgłoszenia">
+    <strong>Status:</strong> {{ zgloszenie.get_status_display }}
+</div>
+
+<!-- Sekcja: Dane osobowe -->
+<section class="content-section" aria-labelledby="section-personal">
+    <h2 id="section-personal">Dane osobowe</h2>
+    <dl class="details-list">
+        <div class="detail-row">
+            <dt>Imię:</dt>
+            <dd>{{ zgloszenie.imie }}</dd>
+        </div>
+        <div class="detail-row">
+            <dt>Nazwisko:</dt>
+            <dd>{{ zgloszenie.nazwisko }}</dd>
+        </div>
+        <div class="detail-row">
+            <dt>E-mail:</dt>
+            <dd>{{ zgloszenie.email }}</dd>
+        </div>
+        <div class="detail-row">
+            <dt>Telefon:</dt>
+            <dd>{{ zgloszenie.telefon }}</dd>
+        </div>
+        <div class="detail-row">
+            <dt>Status wzroku:</dt>
+            <dd>{{ zgloszenie.get_wzrok_display }}</dd>
+        </div>
+    </dl>
 </section>
-<h3> {{zgloszenie.rejs.nazwa}} </h3>
-<p><strong> {{zgloszenie.rejs.od}} -> {{zgloszenie.rejs.do}} </strong></p>
-<article>
+
+<!-- Sekcja: Płatności -->
+<section class="content-section" aria-labelledby="section-payments">
+    <h2 id="section-payments">Płatności</h2>
+
+    <dl class="details-list">
+        <div class="detail-row">
+            <dt>Cena rejsu:</dt>
+            <dd><strong>{{ zgloszenie.rejs_cena }} zł</strong></dd>
+        </div>
+        <div class="detail-row">
+            <dt>Suma wpłat:</dt>
+            <dd>{{ zgloszenie.suma_wplat }} zł</dd>
+        </div>
+        <div class="detail-row {% if zgloszenie.do_zaplaty > 0 %}highlight-warning{% else %}highlight-success{% endif %}">
+            <dt>Pozostało do zapłaty:</dt>
+            <dd>
+                <strong>{{ zgloszenie.do_zaplaty }} zł</strong>
+                {% if zgloszenie.do_zaplaty == 0 %}
+                <span class="badge badge-success">Opłacono</span>
+                {% endif %}
+            </dd>
+        </div>
+    </dl>
+</section>
+
+<!-- Sekcja: Informacje o rejsie -->
+<section class="content-section" aria-labelledby="section-cruise">
+    <h2 id="section-cruise">Informacje o rejsie</h2>
+    <h3>{{ zgloszenie.rejs.nazwa }}</h3>
     <p>
-        {{ zgloszenie.rejs.opis }}
+        <strong>Termin:</strong>
+        <time datetime="{{ zgloszenie.rejs.od|date:'Y-m-d' }}">{{ zgloszenie.rejs.od|date:'j E Y' }}</time>
+        &rarr;
+        <time datetime="{{ zgloszenie.rejs.do|date:'Y-m-d' }}">{{ zgloszenie.rejs.do|date:'j E Y' }}</time>
     </p>
-</article>
-<h2>Rejsowe ogłoszenia</h2>
-<section>
-    <ol>
-    {% for o in zgloszenie.rejs.ogloszenia.all %}
-    <li><h5>{{ o.tytul }}</h5>
-        <p>{{ o.text }}</p>
-    </li>
-    {% empty %}
-    <li>brak ogłoszeń</li>
-{% endfor %}
-</ol>
-</section>
+    <p><strong>Trasa:</strong> {{ zgloszenie.rejs.start }} &rarr; {{ zgloszenie.rejs.koniec }}</p>
+    {% if zgloszenie.rejs.opis %}
+    <div class="cruise-description">
+        {{ zgloszenie.rejs.opis|linebreaks }}
     </div>
-</body>
-</html>
+    {% endif %}
+</section>
+
+<!-- Sekcja: Ogłoszenia -->
+<section class="content-section" aria-labelledby="section-announcements">
+    <h2 id="section-announcements">Ogłoszenia rejsowe</h2>
+
+    {% if zgloszenie.rejs.ogloszenia.all %}
+    <ol class="announcements-list" role="list">
+        {% for o in zgloszenie.rejs.ogloszenia.all %}
+        <li class="announcement-item">
+            <article>
+                <h3>{{ o.tytul }}</h3>
+                <div class="announcement-content">
+                    {{ o.text|linebreaks }}
+                </div>
+            </article>
+        </li>
+        {% endfor %}
+    </ol>
+    {% else %}
+    <p class="no-results">Brak ogłoszeń dla tego rejsu.</p>
+    {% endif %}
+</section>
+{% endblock %}

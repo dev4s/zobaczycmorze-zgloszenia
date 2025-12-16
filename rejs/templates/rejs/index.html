@@ -1,36 +1,58 @@
-<!DOCTYPE html>
-<html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista Rejsów</title>
-</head>
-<body>
-    <h1>Rejsy</h1>
-    <div>
-        <ul>
-            {% for rejs in rejsy %}
-            <li>
-                <h4><strong>{{ rejs.nazwa }}</strong></h4>
-                ({{rejs.od }} - {{ rejs.do }})
-                {{ rejs.start }} -> {{ rejs.koniec }}
-                <br>
-                <p>
-                    koszty: <ul>
-                        <li>zaliczka: {{ rejs.zaliczka }}</li>
-                        <li>do zapłaty: {{ rejs.cena }}</li>
-                    </ul>
-                </p>
-       <p>{{ rejs.opis }}</p>         
-       <br>
-       <a href="{% url 'zgloszenie_utworz' rejs.id %}">
-        Zapisz się
-       </a>
-            </li>
-            {% empty %}
-            <li>Brak rejsów w systemie</li>
-            {% endfor %}
-        </ul>
-    </div>
-</body>
-</html>
+{% extends "rejs/base.html" %}
+
+{% block title %}Lista Rejsów - Zobaczyć Morze{% endblock %}
+
+{% block nav %}{% endblock %}
+
+{% block content %}
+<h1>Dostępne rejsy</h1>
+
+{% if rejsy %}
+<ul class="cruise-list" role="list">
+    {% for rejs in rejsy %}
+    <li class="cruise-card">
+        <article aria-labelledby="cruise-{{ rejs.id }}">
+            <h2 id="cruise-{{ rejs.id }}">{{ rejs.nazwa }}</h2>
+
+            <dl class="cruise-details">
+                <div class="detail-row">
+                    <dt>Termin:</dt>
+                    <dd>
+                        <time datetime="{{ rejs.od|date:'Y-m-d' }}">{{ rejs.od|date:'j E Y' }}</time>
+                        &ndash;
+                        <time datetime="{{ rejs.do|date:'Y-m-d' }}">{{ rejs.do|date:'j E Y' }}</time>
+                    </dd>
+                </div>
+                <div class="detail-row">
+                    <dt>Trasa:</dt>
+                    <dd>{{ rejs.start }} &rarr; {{ rejs.koniec }}</dd>
+                </div>
+                <div class="detail-row">
+                    <dt>Zaliczka:</dt>
+                    <dd>{{ rejs.zaliczka }} zł</dd>
+                </div>
+                <div class="detail-row">
+                    <dt>Pełna cena:</dt>
+                    <dd>{{ rejs.cena }} zł</dd>
+                </div>
+            </dl>
+
+            {% if rejs.opis %}
+            <div class="cruise-description">
+                <p>{{ rejs.opis }}</p>
+            </div>
+            {% endif %}
+
+            <a href="{% url 'zgloszenie_utworz' rejs.id %}"
+               class="button button-primary"
+               aria-label="Zapisz się na rejs {{ rejs.nazwa }}">
+                Zapisz się na ten rejs
+            </a>
+        </article>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p class="no-results">Obecnie nie ma dostępnych rejsów. Sprawdź ponownie później.</p>
+{% endif %}
+{% endblock %}

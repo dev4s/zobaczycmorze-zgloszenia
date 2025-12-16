@@ -1,0 +1,594 @@
+/* ==========================================================================
+   ZOBACZYC MORZE - Arkusz Stylow WCAG 2.1 AA
+   System zgloszen na rejsy dla osob z dysfunkcja wzroku
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   CSS Custom Properties (Design Tokens)
+   -------------------------------------------------------------------------- */
+:root {
+    /* Kolory */
+    --color-bg: #ffffff;
+    --color-text: #1a1a1a;
+    --color-primary: #0052cc;
+    --color-primary-hover: #003d99;
+    --color-success: #006644;
+    --color-warning: #7a4d00;
+    --color-error: #b3000c;
+    --color-border: #666666;
+    --color-border-light: #cccccc;
+    --color-card-bg: #f5f5f5;
+    --color-focus: #0052cc;
+    --color-focus-bg: #e6f0ff;
+
+    /* Typografia */
+    --font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-size-base: 1.125rem;
+    --font-size-small: 1rem;
+    --font-size-h1: 2.5rem;
+    --font-size-h2: 2rem;
+    --font-size-h3: 1.5rem;
+    --line-height: 1.6;
+
+    /* Odstepy */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+
+    /* Rozmiary */
+    --max-width: 50rem;
+    --touch-target: 2.75rem;
+    --focus-ring-width: 3px;
+    --border-radius: 0.25rem;
+}
+
+/* --------------------------------------------------------------------------
+   Reset i Baza
+   -------------------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height);
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    letter-spacing: 0.01em;
+}
+
+/* --------------------------------------------------------------------------
+   Skip Link (Kluczowe dla nawigacji klawiatura)
+   -------------------------------------------------------------------------- */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: var(--spacing-sm);
+    z-index: 9999;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: var(--color-primary);
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+}
+
+.skip-link:focus {
+    top: var(--spacing-sm);
+    outline: var(--focus-ring-width) solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Stany Focus (WCAG 2.4.7 - Focus Visible)
+   -------------------------------------------------------------------------- */
+:focus {
+    outline: var(--focus-ring-width) solid var(--color-focus);
+    outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+    outline: var(--focus-ring-width) solid var(--color-focus);
+}
+
+:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus);
+    outline-offset: 2px;
+    background-color: var(--color-focus-bg);
+}
+
+/* --------------------------------------------------------------------------
+   Layout
+   -------------------------------------------------------------------------- */
+.site-header,
+.site-main,
+.site-footer {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--spacing-md);
+}
+
+.site-header {
+    border-bottom: 2px solid var(--color-border-light);
+    margin-bottom: var(--spacing-lg);
+}
+
+.site-header h1 {
+    margin: 0 0 var(--spacing-xs);
+    font-size: var(--font-size-h2);
+    color: var(--color-primary);
+}
+
+.site-header nav {
+    margin-top: var(--spacing-sm);
+}
+
+.site-footer {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 2px solid var(--color-border-light);
+    color: var(--color-border);
+    text-align: center;
+}
+
+/* --------------------------------------------------------------------------
+   Typografia
+   -------------------------------------------------------------------------- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin-top: var(--spacing-lg);
+    margin-bottom: var(--spacing-sm);
+    line-height: 1.3;
+    font-weight: 700;
+}
+
+h1 {
+    font-size: var(--font-size-h1);
+    margin-top: 0;
+}
+
+h2 {
+    font-size: var(--font-size-h2);
+}
+
+h3 {
+    font-size: var(--font-size-h3);
+}
+
+p {
+    margin: 0 0 var(--spacing-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Linki
+   -------------------------------------------------------------------------- */
+a {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+    text-decoration-thickness: 2px;
+}
+
+a:visited {
+    color: #5e3c99;
+}
+
+/* --------------------------------------------------------------------------
+   Przyciski
+   -------------------------------------------------------------------------- */
+.button,
+button[type="submit"] {
+    display: inline-block;
+    min-height: var(--touch-target);
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    border: 2px solid transparent;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.button-primary,
+button[type="submit"],
+.button-primary:visited {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+}
+
+.button-primary:hover,
+button[type="submit"]:hover {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    color: #ffffff;
+}
+
+.button-primary:focus,
+button[type="submit"]:focus {
+    background-color: var(--color-primary-hover);
+}
+
+/* --------------------------------------------------------------------------
+   Screen Reader Only (Wizualnie ukryte, dostepne dla czytnikow)
+   -------------------------------------------------------------------------- */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Lista Rejsow (index.html)
+   -------------------------------------------------------------------------- */
+.cruise-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.cruise-card {
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    background: var(--color-card-bg);
+    border: 2px solid var(--color-border-light);
+    border-radius: var(--border-radius);
+}
+
+.cruise-card h2 {
+    margin-top: 0;
+    color: var(--color-primary);
+}
+
+.cruise-details {
+    margin: var(--spacing-md) 0;
+}
+
+.cruise-details .detail-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.cruise-details dt {
+    font-weight: 600;
+    min-width: 8rem;
+}
+
+.cruise-details dd {
+    margin: 0;
+    flex: 1;
+}
+
+.cruise-description {
+    margin: var(--spacing-md) 0;
+    padding: var(--spacing-sm);
+    background: var(--color-bg);
+    border-left: 4px solid var(--color-primary);
+}
+
+.no-results {
+    padding: var(--spacing-lg);
+    text-align: center;
+    background: var(--color-card-bg);
+    border-radius: var(--border-radius);
+}
+
+/* --------------------------------------------------------------------------
+   Formularze (zgloszenie_form.html)
+   -------------------------------------------------------------------------- */
+.form-instructions {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-sm);
+    background: var(--color-focus-bg);
+    border-left: 4px solid var(--color-primary);
+}
+
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+}
+
+.required-marker {
+    color: var(--color-error);
+    margin-left: 0.25em;
+}
+
+.field-hint {
+    margin: var(--spacing-xs) 0;
+    font-size: var(--font-size-small);
+    color: var(--color-border);
+}
+
+.field-error {
+    margin: var(--spacing-xs) 0;
+    color: var(--color-error);
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="number"],
+select,
+textarea {
+    display: block;
+    width: 100%;
+    min-height: var(--touch-target);
+    padding: var(--spacing-sm);
+    font-size: var(--font-size-base);
+    font-family: inherit;
+    color: var(--color-text);
+    background: var(--color-bg);
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--color-primary);
+    background: var(--color-focus-bg);
+}
+
+.has-error input,
+.has-error select,
+.has-error textarea,
+input[aria-invalid="true"],
+select[aria-invalid="true"] {
+    border-color: var(--color-error);
+    border-width: 3px;
+}
+
+/* Podsumowanie bledow */
+.error-summary {
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: #fdeaea;
+    border: 2px solid var(--color-error);
+    border-radius: var(--border-radius);
+}
+
+.error-summary h2 {
+    margin-top: 0;
+    color: var(--color-error);
+}
+
+.error-summary ul {
+    margin: var(--spacing-sm) 0 0;
+    padding-left: var(--spacing-md);
+}
+
+.error-summary a {
+    color: var(--color-error);
+}
+
+/* --------------------------------------------------------------------------
+   Strona Szczegolowa (zgloszenie_details.html)
+   -------------------------------------------------------------------------- */
+.status-banner {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    font-size: 1.25rem;
+}
+
+.status-banner.status-qualified {
+    background: #e6f4ea;
+    border: 2px solid var(--color-success);
+    color: var(--color-success);
+}
+
+.status-banner.status-not_qualified {
+    background: #fff8e6;
+    border: 2px solid var(--color-warning);
+    color: var(--color-warning);
+}
+
+.status-banner.status-odrzucone {
+    background: #fdeaea;
+    border: 2px solid var(--color-error);
+    color: var(--color-error);
+}
+
+.details-list {
+    margin: var(--spacing-md) 0;
+}
+
+.details-list .detail-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) 0;
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.details-list dt {
+    font-weight: 600;
+    min-width: 10rem;
+}
+
+.details-list dd {
+    margin: 0;
+    flex: 1;
+}
+
+.highlight-warning {
+    background: #fff8e6;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+}
+
+.highlight-success {
+    background: #e6f4ea;
+    padding: var(--spacing-sm);
+    border-radius: var(--border-radius);
+}
+
+.badge {
+    display: inline-block;
+    padding: 0.25em 0.5em;
+    font-size: var(--font-size-small);
+    font-weight: 600;
+    border-radius: var(--border-radius);
+}
+
+.badge-success {
+    background: var(--color-success);
+    color: #ffffff;
+}
+
+/* Pasek postepu platnosci */
+.payment-progress {
+    height: 1.5rem;
+    background: var(--color-border-light);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    margin-top: var(--spacing-sm);
+}
+
+.progress-bar {
+    height: 100%;
+    background: var(--color-success);
+    transition: width 0.3s;
+}
+
+/* Ogloszenia */
+.announcements-list {
+    list-style: none;
+    padding: 0;
+}
+
+.announcement-item {
+    padding: var(--spacing-md);
+    margin-bottom: var(--spacing-md);
+    background: var(--color-card-bg);
+    border-left: 4px solid var(--color-primary);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.announcement-item h3 {
+    margin-top: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Sekcje
+   -------------------------------------------------------------------------- */
+.content-section {
+    margin-bottom: var(--spacing-xl);
+    padding-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border-light);
+}
+
+.content-section:last-child {
+    border-bottom: none;
+}
+
+.content-section h2 {
+    margin-top: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Responsywnosc
+   -------------------------------------------------------------------------- */
+@media (max-width: 600px) {
+    :root {
+        --font-size-h1: 2rem;
+        --font-size-h2: 1.5rem;
+        --font-size-h3: 1.25rem;
+    }
+
+    .details-list .detail-row,
+    .cruise-details .detail-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .details-list dt,
+    .cruise-details dt {
+        min-width: auto;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Tryb Wysokiego Kontrastu
+   -------------------------------------------------------------------------- */
+@media (prefers-contrast: more) {
+    :root {
+        --color-border: #000000;
+        --color-border-light: #000000;
+    }
+
+    .cruise-card,
+    .announcement-item,
+    input,
+    select,
+    textarea {
+        border-width: 3px;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   Drukowanie
+   -------------------------------------------------------------------------- */
+@media print {
+    .skip-link,
+    nav,
+    .button {
+        display: none;
+    }
+
+    body {
+        font-size: 12pt;
+        color: #000;
+        background: #fff;
+    }
+}

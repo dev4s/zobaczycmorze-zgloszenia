@@ -1,0 +1,43 @@
+[project]
+name = "zm-zgloszenia"
+version = "0.1.0"
+description = "Ship cruise registration system for visually impaired users"
+requires-python = ">=3.12"
+dependencies = [
+    "Django>=5.2.9",
+    "asgiref>=3.11.0",
+    "sqlparse>=0.5.4",
+]
+
+[dependency-groups]
+dev = [
+    "python-dotenv",
+    "ruff",
+    "mypy",
+    "django-stubs",
+]
+
+[tool.ruff]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["mypy_django_plugin.main"]
+strict = false
+warn_return_any = true
+warn_unused_ignores = true
+
+[tool.django-stubs]
+django_settings_module = "zm_zgloszenia.settings"
+
+[tool.poe.tasks]
+serve = "uv run --env-file .env python manage.py runserver"
+migrate = "uv run --env-file .env python manage.py migrate"
+makemigrations = "uv run --env-file .env python manage.py makemigrations"
+createsuperuser = "uv run --env-file .env python manage.py createsuperuser"
+test = "uv run --env-file .env python manage.py test"
+shell = "uv run --env-file .env python manage.py shell"
+setup = ["migrate", "createsuperuser"]

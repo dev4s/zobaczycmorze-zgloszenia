@@ -12,4 +12,4 @@ Data zakończenia wydarzenia: {{ zgl.rejs.do }}
 Koszt wydarzenia: {{ zgl.rejs_cena }} zł.
 Suma wpłat: {{ zgl.suma_wplat}} zł.
 
-{% include "_footer.txt" %}
+{% include "emails/_footer.txt" %}
