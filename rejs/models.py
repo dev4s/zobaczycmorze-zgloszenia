@@ -228,6 +228,9 @@ class Dane_Dodatkowe(models.Model):
 	class Meta:
 		verbose_name = "dane dodatkowe"
 		verbose_name_plural = "dane dodatkowe"
+		permissions = [
+			("export_sensitive_data", "Może eksportować dane wrażliwe do raportów"),
+		]
 
 	def __str__(self) -> str:
 		return f"dane dodatkowe dla zgłoszenia: {self.zgloszenie_id}"
