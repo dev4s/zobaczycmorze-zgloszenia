@@ -7,17 +7,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rejs', '0005_zgloszenie_wzrok_wachta'),
+        ("rejs", "0005_zgloszenie_wzrok_wachta"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='wachta',
-            name='czlonkowie',
+            model_name="wachta",
+            name="czlonkowie",
         ),
         migrations.AddField(
-            model_name='zgloszenie',
-            name='wachta',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='czlonkowie', to='rejs.wachta'),
+            model_name="zgloszenie",
+            name="wachta",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="czlonkowie",
+                to="rejs.wachta",
+            ),
         ),
     ]

@@ -7,26 +7,54 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rejs', '0004_alter_finanse_zgloszenie'),
+        ("rejs", "0004_alter_finanse_zgloszenie"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='zgloszenie',
-            name='wzrok',
-            field=models.CharField(choices=[('WIDZI', 'widzący'), ('SLEPY', 'niewidomy'), ('SLABO', 'słabo widzący')], default=('WIDZI', 'widzący'), max_length=6),
+            model_name="zgloszenie",
+            name="wzrok",
+            field=models.CharField(
+                choices=[
+                    ("WIDZI", "widzący"),
+                    ("SLEPY", "niewidomy"),
+                    ("SLABO", "słabo widzący"),
+                ],
+                default=("WIDZI", "widzący"),
+                max_length=6,
+            ),
         ),
         migrations.CreateModel(
-            name='Wachta',
+            name="Wachta",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nazwa', models.CharField(max_length=200)),
-                ('czlonkowie', models.ManyToManyField(blank=True, related_name='wachta', to='rejs.zgloszenie')),
-                ('rejs', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='wachty', to='rejs.rejs')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nazwa", models.CharField(max_length=200)),
+                (
+                    "czlonkowie",
+                    models.ManyToManyField(
+                        blank=True, related_name="wachta", to="rejs.zgloszenie"
+                    ),
+                ),
+                (
+                    "rejs",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="wachty",
+                        to="rejs.rejs",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'wachta',
-                'verbose_name_plural': 'wachty',
+                "verbose_name": "wachta",
+                "verbose_name_plural": "wachty",
             },
         ),
     ]

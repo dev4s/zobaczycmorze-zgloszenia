@@ -8,31 +8,53 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Rejs',
+            name="Rejs",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('nazwa', models.CharField(max_length=200)),
-                ('od', models.DateField()),
-                ('do', models.DateField()),
-                ('start', models.CharField(max_length=200)),
-                ('koniec', models.CharField(max_length=200)),
-                ('opis', models.TextField(default='tutaj opis rejsu')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("nazwa", models.CharField(max_length=200)),
+                ("od", models.DateField()),
+                ("do", models.DateField()),
+                ("start", models.CharField(max_length=200)),
+                ("koniec", models.CharField(max_length=200)),
+                ("opis", models.TextField(default="tutaj opis rejsu")),
             ],
         ),
         migrations.CreateModel(
-            name='Zgloszenie',
+            name="Zgloszenie",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('imie', models.CharField(max_length=100)),
-                ('nazwisko', models.CharField(max_length=100)),
-                ('email', models.EmailField(max_length=254)),
-                ('telefon', models.CharField(max_length=15)),
-                ('rejs', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='zgloszenia', to='rejs.rejs')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("imie", models.CharField(max_length=100)),
+                ("nazwisko", models.CharField(max_length=100)),
+                ("email", models.EmailField(max_length=254)),
+                ("telefon", models.CharField(max_length=15)),
+                (
+                    "rejs",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="zgloszenia",
+                        to="rejs.rejs",
+                    ),
+                ),
             ],
         ),
     ]

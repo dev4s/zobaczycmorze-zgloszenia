@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rejs', '0001_initial'),
+        ("rejs", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='rejs',
-            options={'verbose_name': 'Rejs', 'verbose_name_plural': 'Rejsy'},
+            name="rejs",
+            options={"verbose_name": "Rejs", "verbose_name_plural": "Rejsy"},
         ),
         migrations.AlterModelOptions(
-            name='zgloszenie',
-            options={'verbose_name': 'Zgłoszenie', 'verbose_name_plural': 'Zgłoszenia'},
+            name="zgloszenie",
+            options={"verbose_name": "Zgłoszenie", "verbose_name_plural": "Zgłoszenia"},
         ),
     ]

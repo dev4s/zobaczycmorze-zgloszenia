@@ -7,25 +7,35 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('rejs', '0009_alter_zgloszenie_status_ogloszenie_delete_info'),
+        ("rejs", "0009_alter_zgloszenie_status_ogloszenie_delete_info"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='wplata',
-            name='finanse',
+            model_name="wplata",
+            name="finanse",
         ),
         migrations.AddField(
-            model_name='wplata',
-            name='rodzaj',
-            field=models.CharField(choices=[('wplata', 'Wpłata'), ('zwrot', 'zwrot')], default=('zwrot', 'zwrot'), max_length=7),
+            model_name="wplata",
+            name="rodzaj",
+            field=models.CharField(
+                choices=[("wplata", "Wpłata"), ("zwrot", "zwrot")],
+                default=("zwrot", "zwrot"),
+                max_length=7,
+            ),
         ),
         migrations.AddField(
-            model_name='wplata',
-            name='zgloszenie',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, related_name='wplaty', to='rejs.zgloszenie'),
+            model_name="wplata",
+            name="zgloszenie",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="wplaty",
+                to="rejs.zgloszenie",
+            ),
         ),
         migrations.DeleteModel(
-            name='Finanse',
+            name="Finanse",
         ),
     ]
