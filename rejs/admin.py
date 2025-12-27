@@ -61,7 +61,10 @@ class WachtaForm(forms.ModelForm):
 		super().__init__(*args, **kwargs)
 
 		if self.instance and self.instance.pk:
-			self.fields["czlonkowie"].queryset = Zgloszenie.objects.filter(rejs=self.instance.rejs)
+			self.fields["czlonkowie"].queryset = Zgloszenie.objects.filter(
+				rejs=self.instance.rejs,
+				wachta=None,
+			)
 			self.fields["czlonkowie"].initial = self.instance.czlonkowie.all()
 		else:
 			rejs_initial = self.initial.get("rejs") or (self.data.get("rejs") if self.data else None)

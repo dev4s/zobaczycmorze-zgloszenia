@@ -65,21 +65,21 @@ class ZgloszenieForm(forms.ModelForm):
 			"nazwisko": "Nazwisko",
 			"email": "Adres e-mail",
 			"telefon": "Numer telefonu",
-			"data_urodzenia": "data urodzenia",
-			"adres": "adres",
-			"kod_pocztowy": "kod pocztowy",
-			"miejscowosc": "miejscowość",
+			"data_urodzenia": "Data urodzenia",
+			"adres": "Adres",
+			"kod_pocztowy": "Kod pocztowy",
+			"miejscowosc": "Miejscowość",
 			"wzrok": "Status wzroku",
-			"obecnosc": "udział w poprzednich rejsach",
-			"rodo": "zgoda na przetwarzanie danych osobowych",
+			"obecnosc": "Udział w poprzednich rejsach",
+			"rodo": "Zgoda na przetwarzanie danych osobowych",
 		}
 		help_texts = {
 			"telefon": "Format: 9-15 cyfr, np. 123456789 lub +48123456789",
-			"data_urodzenia": "podaj date urodzenia w formacie dd.mm.rrrr (np. 05.10.1990)",
-			"kod_pocztowy": "format: XX-XXX gdzie X oznacza cyfrę",
+			"data_urodzenia": "Podaj date urodzenia w formacie dd.mm.rrrr (np. 05.10.1990)",
+			"kod_pocztowy": "Format: XX-XXX gdzie X oznacza cyfrę",
 			"wzrok": "Wybierz opcję najbliższą Twojej sytuacji",
 			"obecnosc": "Czy brałeś juz udział w rejsach zobaczyć morze?",
-			"rodo": "czy zgadzasz się na przetwarzanie danych osobowych?",
+			"rodo": "Czy zgadzasz się na przetwarzanie danych osobowych?",
 		}
 		widgets = {
 			"imie": forms.TextInput(
