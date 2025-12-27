@@ -1,5 +1,6 @@
 """Management command to open pages in browser with optional server start."""
 
+import os
 import socket
 import threading
 import time
@@ -38,18 +39,23 @@ class Command(BaseCommand):
         path = "/admin/" if options["admin"] else "/"
         url = f"http://127.0.0.1:{port}{path}"
 
+        # Skip browser open in reloader child process (RUN_MAIN is set by Django reloader)
+        is_reloader_child = os.environ.get("RUN_MAIN") == "true"
+
         if is_server_running(port=port):
-            self.stdout.write(f"Server already running. Opening {url}")
-            webbrowser.open(url)
-        else:
-            self.stdout.write(f"Starting server and opening {url}")
-
-            # Open browser after short delay
-            def open_browser():
-                time.sleep(2)
+            if not is_reloader_child:
+                self.stdout.write(f"Server already running. Opening {url}")
                 webbrowser.open(url)
+        else:
+            if not is_reloader_child:
+                self.stdout.write(f"Starting server and opening {url}")
 
-            threading.Thread(target=open_browser, daemon=True).start()
+                # Open browser after short delay
+                def open_browser():
+                    time.sleep(2)
+                    webbrowser.open(url)
+
+                threading.Thread(target=open_browser, daemon=True).start()
 
             # Start server (blocks)
             call_command("runserver", f"127.0.0.1:{port}")

@@ -42,8 +42,17 @@ makemigrations = "uv run --env-file .env python manage.py makemigrations"
 createsuperuser = "uv run --env-file .env python manage.py createsuperuser"
 test = "uv run --env-file .env python manage.py test"
 shell = "uv run --env-file .env python manage.py shell"
-init = ["migrate", "createsuperuser"]
 resetadmin = "uv run --env-file .env python manage.py resetadmin"
 open = "uv run --env-file .env python manage.py openpage"
 openadmin = "uv run --env-file .env python manage.py openpage --admin"
 openalt = { cmd = "uv run --env-file .env python manage.py openpage", env = { DJANGO_THEME = "alt" } }
+
+# Database management
+_delete-db = "python -c \"import pathlib; p=pathlib.Path('db.sqlite3'); p.unlink(missing_ok=True); print('Database deleted.' if not p.exists() else '')\""
+_load-sample-data = "uv run --env-file .env python manage.py loaddata sample_data"
+_db-status = "uv run --env-file .env python manage.py db_status"
+
+# Setup commands
+init = ["migrate", "_load-sample-data", "_db-status"]
+reset-db = ["_delete-db", "migrate", "_load-sample-data", "_db-status"]
+reset-db-clean = ["_delete-db", "migrate", "_db-status"]
