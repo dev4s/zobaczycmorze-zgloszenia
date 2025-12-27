@@ -17,7 +17,7 @@ from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from rejs.models import Dane_Dodatkowe, AuditLog
+from rejs.models import AuditLog, Dane_Dodatkowe
 
 
 class Command(BaseCommand):

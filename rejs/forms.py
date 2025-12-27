@@ -1,8 +1,8 @@
 from django import forms
-from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
-from .models import Zgloszenie, Dane_Dodatkowe
+from .models import Dane_Dodatkowe, Zgloszenie
 
 telefon_validator = RegexValidator(
     regex=r"^\+?\d{9,15}$",

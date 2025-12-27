@@ -1,14 +1,15 @@
 import datetime
 import uuid
 from decimal import Decimal
+
+from cryptography.fernet import Fernet
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Case, Sum, When
 from django.forms import ValidationError
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib.auth import get_user_model
-from cryptography.fernet import Fernet
-from django.conf import settings
 
 fernet = Fernet(settings.DJANGO_FIELD_ENCRYPTION_KEY.encode())
 

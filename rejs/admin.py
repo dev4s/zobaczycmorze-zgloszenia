@@ -4,16 +4,17 @@ from django.contrib.admin import widgets
 from django.http import HttpResponse
 
 from rejs.reports import generate_rejs_report
+
+from .audit import log_audit
 from .models import (
+    AuditLog,
+    Dane_Dodatkowe,
     Ogloszenie,
     Rejs,
     Wachta,
     Wplata,
     Zgloszenie,
-    Dane_Dodatkowe,
-    AuditLog,
 )
-from .audit import log_audit
 
 
 @admin.action(description="Generuj raport Excel dla rejsu")
