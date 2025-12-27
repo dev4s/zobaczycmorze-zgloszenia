@@ -94,7 +94,7 @@ class Zgloszenie(models.Model):
         blank=False,
         null=False,
         verbose_name="data urodzenia",
-        default=datetime.date.today(),
+        default=datetime.date.today,
     )
     adres = models.CharField(
         null=False, blank=False, default="unknown", verbose_name="adres"

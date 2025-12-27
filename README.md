@@ -171,7 +171,6 @@ zobaczycmorze-zgloszenia/
 ├── manage.py               # Skrypt zarządzania Django
 ├── pyproject.toml          # Konfiguracja projektu i zadań
 ├── requirements.txt        # Zależności (dla pip)
-├── CLAUDE.md               # Konwencje projektu
 └── README.md               # Ten plik
 ```
 

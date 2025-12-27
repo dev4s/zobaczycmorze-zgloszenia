@@ -86,6 +86,8 @@ class ZgloszenieModelTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
 
     def test_str_representation(self):
@@ -104,6 +106,8 @@ class ZgloszenieModelTest(TestCase):
             email="anna@example.com",
             telefon="987654321",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
         self.assertNotEqual(self.zgloszenie.token, zgloszenie2.token)
 
@@ -193,6 +197,8 @@ class WplataModelTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
 
     def test_str_representation(self):
@@ -295,7 +301,13 @@ class ZgloszenieCreateViewTest(TestCase):
             "nazwisko": "Kowalski",
             "email": "jan@example.com",
             "telefon": "123456789",
+            "data_urodzenia": "1990-01-01",
+            "adres": "ul. Testowa 1",
+            "kod_pocztowy": "00-001",
+            "miejscowosc": "Warszawa",
             "wzrok": "NIEWIDOMY",
+            "obecnosc": "tak",
+            "rodo": True,
         }
         response = self.client.post(
             reverse("zgloszenie_utworz", kwargs={"rejs_id": self.rejs.id}), data
@@ -328,7 +340,13 @@ class ZgloszenieCreateViewTest(TestCase):
             "nazwisko": "Kowalski",
             "email": "jan@example.com",
             "telefon": "abc",
+            "data_urodzenia": "1990-01-01",
+            "adres": "ul. Testowa 1",
+            "kod_pocztowy": "00-001",
+            "miejscowosc": "Warszawa",
             "wzrok": "NIEWIDOMY",
+            "obecnosc": "tak",
+            "rodo": True,
         }
         response = self.client.post(
             reverse("zgloszenie_utworz", kwargs={"rejs_id": self.rejs.id}), data
@@ -355,6 +373,8 @@ class ZgloszenieDetailsViewTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
 
     def test_get_details_by_token(self):
@@ -388,89 +408,58 @@ class ZgloszenieDetailsViewTest(TestCase):
 class ZgloszenieFormTest(TestCase):
     """Testy formularza zgłoszenia."""
 
-    def test_valid_form(self):
-        """Test poprawnego formularza."""
+    def get_valid_form_data(self, **overrides):
+        """Zwraca słownik z poprawnymi danymi formularza."""
         data = {
             "imie": "Jan",
             "nazwisko": "Kowalski",
             "email": "jan@example.com",
             "telefon": "123456789",
+            "data_urodzenia": "1990-01-01",
+            "adres": "ul. Testowa 1",
+            "kod_pocztowy": "00-001",
+            "miejscowosc": "Warszawa",
             "wzrok": "NIEWIDOMY",
+            "obecnosc": "tak",
+            "rodo": True,
         }
-        form = ZgloszenieForm(data=data)
+        data.update(overrides)
+        return data
+
+    def test_valid_form(self):
+        """Test poprawnego formularza."""
+        form = ZgloszenieForm(data=self.get_valid_form_data())
         self.assertTrue(form.is_valid())
 
     def test_telefon_validation_9_digits(self):
         """Test walidacji telefonu - 9 cyfr."""
-        data = {
-            "imie": "Jan",
-            "nazwisko": "Kowalski",
-            "email": "jan@example.com",
-            "telefon": "123456789",
-            "wzrok": "NIEWIDOMY",
-        }
-        form = ZgloszenieForm(data=data)
+        form = ZgloszenieForm(data=self.get_valid_form_data(telefon="123456789"))
         self.assertTrue(form.is_valid())
 
     def test_telefon_validation_with_plus(self):
         """Test walidacji telefonu z +."""
-        data = {
-            "imie": "Jan",
-            "nazwisko": "Kowalski",
-            "email": "jan@example.com",
-            "telefon": "+48123456789",
-            "wzrok": "NIEWIDOMY",
-        }
-        form = ZgloszenieForm(data=data)
+        form = ZgloszenieForm(data=self.get_valid_form_data(telefon="+48123456789"))
         self.assertTrue(form.is_valid())
 
     def test_telefon_validation_15_digits(self):
         """Test walidacji telefonu - 15 cyfr."""
-        data = {
-            "imie": "Jan",
-            "nazwisko": "Kowalski",
-            "email": "jan@example.com",
-            "telefon": "123456789012345",
-            "wzrok": "NIEWIDOMY",
-        }
-        form = ZgloszenieForm(data=data)
+        form = ZgloszenieForm(data=self.get_valid_form_data(telefon="123456789012345"))
         self.assertTrue(form.is_valid())
 
     def test_telefon_validation_invalid_letters(self):
         """Test walidacji telefonu - litery."""
-        data = {
-            "imie": "Jan",
-            "nazwisko": "Kowalski",
-            "email": "jan@example.com",
-            "telefon": "abc123def",
-            "wzrok": "NIEWIDOMY",
-        }
-        form = ZgloszenieForm(data=data)
+        form = ZgloszenieForm(data=self.get_valid_form_data(telefon="abc123def"))
         self.assertFalse(form.is_valid())
         self.assertIn("telefon", form.errors)
 
     def test_telefon_validation_too_short(self):
         """Test walidacji telefonu - za krótki."""
-        data = {
-            "imie": "Jan",
-            "nazwisko": "Kowalski",
-            "email": "jan@example.com",
-            "telefon": "12345678",
-            "wzrok": "NIEWIDOMY",
-        }
-        form = ZgloszenieForm(data=data)
+        form = ZgloszenieForm(data=self.get_valid_form_data(telefon="12345678"))
         self.assertFalse(form.is_valid())
 
     def test_telefon_cleans_spaces_and_dashes(self):
         """Test czy telefon jest czyszczony ze spacji i myślników."""
-        data = {
-            "imie": "Jan",
-            "nazwisko": "Kowalski",
-            "email": "jan@example.com",
-            "telefon": "123-456-789",
-            "wzrok": "NIEWIDOMY",
-        }
-        form = ZgloszenieForm(data=data)
+        form = ZgloszenieForm(data=self.get_valid_form_data(telefon="123-456-789"))
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data["telefon"], "123456789")
 
@@ -485,14 +474,9 @@ class ZgloszenieFormTest(TestCase):
 
     def test_invalid_email(self):
         """Test nieprawidłowego emaila."""
-        data = {
-            "imie": "Jan",
-            "nazwisko": "Kowalski",
-            "email": "nieprawidlowy-email",
-            "telefon": "123456789",
-            "wzrok": "NIEWIDOMY",
-        }
-        form = ZgloszenieForm(data=data)
+        form = ZgloszenieForm(
+            data=self.get_valid_form_data(email="nieprawidlowy-email")
+        )
         self.assertFalse(form.is_valid())
         self.assertIn("email", form.errors)
 
@@ -519,6 +503,8 @@ class SignalsTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn("Potwierdzenie zgłoszenia", mail.outbox[0].subject)
@@ -532,11 +518,13 @@ class SignalsTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
-            status="NOT_QUALIFIED",
+            status=Zgloszenie.STATUS_NIEZAKWALIFIKOWANY,
+            rodo=True,
+            obecnosc="tak",
         )
         mail.outbox.clear()
 
-        zgloszenie.status = "QUALIFIED"
+        zgloszenie.status = Zgloszenie.STATUS_ZAKWALIFIKOWANY
         zgloszenie.save()
 
         self.assertEqual(len(mail.outbox), 1)
@@ -550,11 +538,13 @@ class SignalsTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
-            status="NOT_QUALIFIED",
+            status=Zgloszenie.STATUS_NIEZAKWALIFIKOWANY,
+            rodo=True,
+            obecnosc="tak",
         )
         mail.outbox.clear()
 
-        zgloszenie.status = "ODRZUCONE"
+        zgloszenie.status = Zgloszenie.STATUS_ODRZUCONE
         zgloszenie.save()
 
         self.assertEqual(len(mail.outbox), 1)
@@ -568,7 +558,9 @@ class SignalsTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
-            status="NOT_QUALIFIED",
+            status=Zgloszenie.STATUS_NIEZAKWALIFIKOWANY,
+            rodo=True,
+            obecnosc="tak",
         )
         mail.outbox.clear()
 
@@ -585,6 +577,8 @@ class SignalsTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
         wachta = Wachta.objects.create(rejs=self.rejs, nazwa="Alfa")
         mail.outbox.clear()
@@ -603,6 +597,8 @@ class SignalsTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
         mail.outbox.clear()
 
@@ -621,6 +617,8 @@ class SignalsTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
         mail.outbox.clear()
 
@@ -639,6 +637,8 @@ class SignalsTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
         zgloszenie2 = Zgloszenie.objects.create(
             imie="Anna",
@@ -646,6 +646,8 @@ class SignalsTest(TestCase):
             email="anna@example.com",
             telefon="987654321",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
         mail.outbox.clear()
 
@@ -699,6 +701,8 @@ class AdminTest(TestCase):
             email="jan@example.com",
             telefon="123456789",
             rejs=self.rejs,
+            rodo=True,
+            obecnosc="tak",
         )
         response = self.client.get(f"/admin/rejs/zgloszenie/{zgloszenie.id}/change/")
         self.assertEqual(response.status_code, 200)

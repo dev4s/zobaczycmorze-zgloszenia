@@ -8,6 +8,7 @@ dependencies = [
     "asgiref>=3.11.0",
     "sqlparse>=0.5.4",
     "cryptography>=44.0.0",
+    "openpyxl>=3.1.5",
 ]
 
 [dependency-groups]
@@ -41,4 +42,7 @@ makemigrations = "uv run --env-file .env python manage.py makemigrations"
 createsuperuser = "uv run --env-file .env python manage.py createsuperuser"
 test = "uv run --env-file .env python manage.py test"
 shell = "uv run --env-file .env python manage.py shell"
-setup = ["migrate", "createsuperuser"]
+init = ["migrate", "createsuperuser"]
+resetadmin = "uv run --env-file .env python manage.py resetadmin"
+open = "uv run --env-file .env python manage.py openpage"
+openadmin = "uv run --env-file .env python manage.py openpage --admin"
