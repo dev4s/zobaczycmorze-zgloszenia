@@ -1,5 +1,5 @@
 Dzień dobry {{ zgl.imie }}
-do rejsu: {{ zgl.rejs.nazwa }} zostało dodane nowe ogłoszenie
+Do rejsu {{ zgl.rejs.nazwa }} zostało dodane nowe ogłoszenie.
 
 {{ ogloszenie.tytul }}
 {{ ogloszenie.text }}

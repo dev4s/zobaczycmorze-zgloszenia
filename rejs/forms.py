@@ -75,10 +75,10 @@ class ZgloszenieForm(forms.ModelForm):
 		}
 		help_texts = {
 			"telefon": "Format: 9-15 cyfr, np. 123456789 lub +48123456789",
-			"data_urodzenia": "Podaj date urodzenia w formacie dd.mm.rrrr (np. 05.10.1990)",
+			"data_urodzenia": "Podaj datę urodzenia w formacie dd.mm.rrrr (np. 05.10.1990)",
 			"kod_pocztowy": "Format: XX-XXX gdzie X oznacza cyfrę",
 			"wzrok": "Wybierz opcję najbliższą Twojej sytuacji",
-			"obecnosc": "Czy brałeś juz udział w rejsach zobaczyć morze?",
+			"obecnosc": "Czy brałeś/aś już udział w rejsach Zobaczyć Morze?",
 			"rodo": "Czy zgadzasz się na przetwarzanie danych osobowych?",
 		}
 		widgets = {

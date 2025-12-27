@@ -28,14 +28,14 @@ class EncryptedTextField(models.TextField):
 
 class Rejs(models.Model):
 	nazwa = models.CharField(max_length=200, null=False, blank=False)
-	od = models.DateField(null=False, blank=False, verbose_name="data od")
-	do = models.DateField(null=False, blank=False, verbose_name="data do")
-	start = models.CharField(max_length=200, null=False, blank=False, verbose_name="port początkowy")
-	koniec = models.CharField(max_length=200, null=False, blank=False, verbose_name="port końcowy")
+	od = models.DateField(null=False, blank=False, verbose_name="Data od")
+	do = models.DateField(null=False, blank=False, verbose_name="Data do")
+	start = models.CharField(max_length=200, null=False, blank=False, verbose_name="Port początkowy")
+	koniec = models.CharField(max_length=200, null=False, blank=False, verbose_name="Port końcowy")
 	cena = models.DecimalField(default=1500, max_digits=10, decimal_places=2)
 	zaliczka = models.DecimalField(default=500, max_digits=10, decimal_places=2)
 	opis = models.TextField(default="tutaj opis rejsu", blank=False, null=False)
-	aktywna_rekrutacja = models.BooleanField(default=True, verbose_name="aktywna rekrutacja")
+	aktywna_rekrutacja = models.BooleanField(default=True, verbose_name="Aktywna rekrutacja")
 
 	def __str__(self) -> str:
 		return self.nazwa
@@ -87,18 +87,18 @@ class Zgloszenie(models.Model):
 	nazwisko = models.CharField(max_length=100, null=False, blank=False, verbose_name="Nazwisko")
 	email = models.EmailField(null=False, blank=False, verbose_name="Adres e-mail")
 	telefon = models.CharField(max_length=15, blank=False, null=False, verbose_name="Numer telefonu")
-	data_urodzenia = models.DateField(blank=False, null=False, verbose_name="data urodzenia")
+	data_urodzenia = models.DateField(blank=False, null=False, verbose_name="Data urodzenia")
 	adres = models.CharField(null=False, blank=False, default="unknown")
-	kod_pocztowy = models.CharField(null=False, blank=False, default="00-000", verbose_name="kod pocztowy")
+	kod_pocztowy = models.CharField(null=False, blank=False, default="00-000", verbose_name="Kod pocztowy")
 	miejscowosc = models.CharField(null=False, blank=False, default="unknown")
 	obecnosc = models.CharField(
 		max_length=3,
 		choices=obecnosc_pola,
-		verbose_name="uczestnictwo w zobaczyć morze",
+		verbose_name="Uczestnictwo w Zobaczyć Morze",
 	)
 	rodo = models.BooleanField(
-		verbose_name="zgoda na przetwarzanie danych osobowych",
-		help_text="zgadzam się na przetwarzanie danych osobowych zgodnie z polityką prywatności zobaczyć morze.",
+		verbose_name="Zgoda na przetwarzanie danych osobowych",
+		help_text="Zgadzam się na przetwarzanie danych osobowych zgodnie z polityką prywatności Zobaczyć Morze.",
 	)
 	status = models.CharField(max_length=20, choices=statusy, default=STATUS_NIEZAKWALIFIKOWANY)
 	wzrok = models.CharField(
@@ -219,26 +219,26 @@ class Dane_Dodatkowe(models.Model):
 		null=False,
 		blank=False,
 		default="12345678900",
-		verbose_name="pesel",
+		verbose_name="PESEL",
 	)
 	poz2 = EncryptedTextField(
 		max_length=14,
 		choices=typ_dokumentu,
 		default=typ_dokumentu[0],
-		verbose_name="typ dokumentu",
+		verbose_name="Typ dokumentu",
 	)
-	poz3 = EncryptedTextField(blank=False, null=False, default="ABC123", verbose_name="numer dokumentu")
+	poz3 = EncryptedTextField(blank=False, null=False, default="ABC123", verbose_name="Numer dokumentu")
 	zgoda_dane_wrazliwe = models.BooleanField(
 		default=False,
-		verbose_name="zgoda na przetwarzanie danych wrażliwych",
+		verbose_name="Zgoda na przetwarzanie danych wrażliwych",
 		help_text="Wyrażam zgodę na przetwarzanie moich danych osobowych (PESEL, numer dokumentu) "
 		"w celu realizacji procedur zaokrętowania zgodnie z wymogami kapitana. "
 		"Dane zostaną usunięte w ciągu 30 dni po zakończeniu rejsu.",
 	)
 
 	class Meta:
-		verbose_name = "dane dodatkowe"
-		verbose_name_plural = "dane dodatkowe"
+		verbose_name = "Dane dodatkowe"
+		verbose_name_plural = "Dane dodatkowe"
 		permissions = [
 			("export_sensitive_data", "Może eksportować dane wrażliwe do raportów"),
 		]

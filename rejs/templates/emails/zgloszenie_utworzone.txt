@@ -1,4 +1,4 @@
-Cieszymy się, że postanowiłeś/postanowiłaś dołączyć do naszej załogi!. Twoje zgłoszenie na rejs Zobaczyć Morze, zostało pomyślnie zarejestrowane w systemie.
+Cieszymy się, że postanowiłeś/postanowiłaś dołączyć do naszej załogi! Twoje zgłoszenie na rejs Zobaczyć Morze zostało pomyślnie zarejestrowane w systemie.
     Prosimy o wpłatę zaliczki w wysokości {{ zgl.rejs.zaliczka }} zł w ciągu 15 dni od rejestracji na konto:
     Fundacja Zobaczyć Morze im. Tomka Opoki
         ul. Gryfa Pomorskiego 87b / 1
@@ -12,13 +12,13 @@ Cieszymy się, że postanowiłeś/postanowiłaś dołączyć do naszej załogi!.
                 Jeśli nie zakwalifikujesz się do uczestnictwa w rejsie, to w ciągu 7 dni od ogłoszenia listy uczestników zwrócimy Ci zaliczkę na konto, z którego została przelana.
                 Kwalifikacje uczestników rozpoczną się niezwłocznie po zakończeniu rejestracji.
                 Pierwszeństwo w udziale w imprezie będą miały osoby, które dotychczas nigdy nie płynęły w projekcie Zobaczyć Morze. Podczas kwalifikacji pod uwagę wzięte zostaną także kryteria podane w regulaminie wydarzenia, który znajdziesz na naszej stronie: <a href="https://www.zobaczycmorze.pl">www.zobaczycmorze.pl</a>.</p>
-Jeśli zrezygnujesz z udziału w imprezie przed ogłoszeniem listy osób zakwalifikowanych, nie pociągnie to za sobą żadnych negatywnych konsekwencji a wpłacone przez Ciebie kwoty zostaną zwrócone w ciągu 7 dni od poinformowania nas o rezygnacji. Jeśli jednak zrezygnujesz już po ogłoszeniu listy osób zakwalifikowanych, musisz liczyć się z ewentualnością, że w razie nie znalezienia zastępstwa na Twoje miejsce, uiszczona przez Ciebie opłata za uczestnictwo przepadnie i nie zostanie zwrócona.
+Jeśli zrezygnujesz z udziału w imprezie przed ogłoszeniem listy osób zakwalifikowanych, nie pociągnie to za sobą żadnych negatywnych konsekwencji, a wpłacone przez Ciebie kwoty zostaną zwrócone w ciągu 7 dni od poinformowania nas o rezygnacji. Jeśli jednak zrezygnujesz już po ogłoszeniu listy osób zakwalifikowanych, musisz liczyć się z ewentualnością, że w razie nieznalezienia zastępstwa na Twoje miejsce, uiszczona przez Ciebie opłata za uczestnictwo przepadnie i nie zostanie zwrócona.
 
 Przypominamy, że zgłoszenie na rejs Zobaczyć Morze i udział w procesie kwalifikacji oznacza, że:
 Deklarujesz przestrzeganie i nienaruszanie regulaminu jednostek i obiektów, na których impreza będzie organizowana.
 Wyrażasz zgodę na przetwarzanie Twoich danych osobowych na potrzeby rekrutacji i organizacji imprezy Zobaczyć Morze zgodnie z naszą polityką prywatności.
 
-Po zakwalifikowaniu do udziału w rejsie Zobaczyć Morze , poprosimy Cię o:
+Po zakwalifikowaniu do udziału w rejsie Zobaczyć Morze poprosimy Cię o:
 uiszczenie pozostałej opłaty za udział w rejsie, to jest % zgl.rejs.cena - zgl.rejs.zaliczka %} zł w nieprzekraczalnym terminie 14 dni od otrzymania potwierdzenia uczestnictwa w imprezie,
 podanie dodatkowych danych, takich jak numer PESEL, numer dowodu osobistego lub paszportu, adres zamieszkania (będą niezbędne do zgłoszenia do ubezpieczenia) oraz rozmiar koszulki,
 przesłanie orzeczenia o stopniu niepełnosprawności, w przypadku osób z dysfunkcją wzroku (niezbędna do rozliczenia dotacji z Ministerstwa Sportu i Turystyki).

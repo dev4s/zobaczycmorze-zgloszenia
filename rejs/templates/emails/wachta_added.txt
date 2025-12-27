@@ -1,5 +1,5 @@
 Dzień dobry {{ zgl.imie }} {{zgl.nazwisko }}.
-dodaliśmy ciebie do wachty {{ wachta.nazwa }} 
+Dodaliśmy Ciebie do wachty {{ wachta.nazwa }}.
 
 Więcej szczegółów w zgłoszeniu:
 {{ link }}

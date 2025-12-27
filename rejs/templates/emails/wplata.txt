@@ -1,7 +1,7 @@
 Potwierdzamy przyjęcie Twojej wpłaty w wysokości {{ wplata.kwota }} zł.
-Pamiętaj, że wpłata nie oznacza zakwalifikowania się do udziału w wydarzeniu - o tym poinformujemy Cię lub poinformowaliśmy w osobym mailu.
+Pamiętaj, że wpłata nie oznacza zakwalifikowania się do udziału w wydarzeniu - o tym poinformujemy Cię lub poinformowaliśmy w osobnym mailu.
 Jeśli odrzucimy Twoje zgłoszenie, zwrócimy Ci całość wpłaconej kwoty.
-Jeśli zgłosiłeś się na kilka wydarzeń, to zwracamy Twoją uwagę na to, że każde wydarzenie jest traktowana oddzielnie i dla każdego osobno rozliczane są wpłaty i osobno przeprowadzane kwalifikacje.
+Jeśli zgłosiłeś się na kilka wydarzeń, to zwracamy Twoją uwagę na to, że każde wydarzenie jest traktowane oddzielnie i dla każdego osobno rozliczane są wpłaty i osobno przeprowadzane kwalifikacje.
 
 Podsumowanie:
 Nazwa wydarzenia: {{ zgl.rejs.nazwa }}
