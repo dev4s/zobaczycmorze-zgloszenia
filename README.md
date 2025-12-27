@@ -76,6 +76,7 @@ System zgłoszeń na rejsy żeglarskie dla osób z dysfunkcją wzroku, prowadzon
    ```
 
    Następnie edytuj plik `.env` i ustaw `SECRET_KEY`.
+   `DJANGO_FIELD_ENCRYPTION_KEY`.
 
 5. **Pierwsze uruchomienie:**
 
@@ -209,3 +210,59 @@ Przed wdrożeniem na serwer produkcyjny:
 4. Skonfiguruj `SITE_URL` z pełnym adresem strony
 5. Skonfiguruj prawdziwy backend email (SMTP)
 6. Rozważ migrację na PostgreSQL
+## Wdrożenie aplikacji (bez UV, bez poe – czysty Python + pip)
+
+Poniższe kroki opisują pełną konfigurację i uruchomienie aplikacji przy użyciu standardowego Pythona i `pip`.
+
+### 1. Utworzenie i aktywacja środowiska wirtualnego
+
+```bash
+python -m venv venv
+2. Instalacja zależności
+pip install -r requirements.txt
+Sprawdzenie poprawnej instalacji Django:
+python -m django --version
+3. Konfiguracja środowiska (.env)
+Skopiuj plik konfiguracyjny:
+cp .env.example .env
+Następnie edytuj plik .env i ustaw co najmniej:
+SECRET_KEY
+DJANGO_FIELD_ENCRYPTION_KEY
+Bez tych zmiennych aplikacja nie uruchomi się.
+4. Migracje bazy danych (krok wymagany)
+Zastosuj migracje:
+python manage.py migrate
+Ten krok:
+tworzy strukturę bazy danych
+automatycznie tworzy grupy użytkowników (Administratorzy, Koordynatorzy Rejsów, Obsługa Zgłoszeń)
+5. Utworzenie konta administratora
+python manage.py createsuperuser
+6. Zebranie plików statycznych (collectstatic)
+Ten krok jest wymagany, szczególnie przed wdrożeniem produkcyjnym:
+python manage.py collectstatic
+Pliki statyczne (CSS, JS, panel admina) zostaną zebrane do katalogu STATIC_ROOT.
+7. Uruchomienie serwera
+python manage.py runserver
+Aplikacja będzie dostępna pod adresami:
+Strona główna: http://localhost:8000
+Panel administracyjny: http://localhost:8000/admin
+8. Sprawdzenie poprawności działania (zalecane)
+python manage.py check
+Testy:
+python manage.py test
+Skrócona lista kroków wdrożeniowych
+Utwórz virtualenv
+Zainstaluj zależności
+Skonfiguruj .env
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py collectstatic
+python manage.py runserver
+Uwagi produkcyjne
+Przed wdrożeniem na serwer produkcyjny:
+Ustaw DEBUG=False
+Skonfiguruj ALLOWED_HOSTS
+Ustaw poprawny SITE_URL
+Skonfiguruj backend email (SMTP)
+Uruchamiaj aplikację przez WSGI (np. gunicorn)
+Serwuj pliki statyczne przez serwer WWW (np. nginx)
