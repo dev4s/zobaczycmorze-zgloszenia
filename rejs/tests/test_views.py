@@ -4,8 +4,8 @@ import uuid
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from rejs.forms import ZgloszenieForm
-from rejs.models import Rejs, Zgloszenie
+from rejs.forms import Dane_DodatkoweForm, ZgloszenieForm
+from rejs.models import Dane_Dodatkowe, Rejs, Zgloszenie
 
 
 # Helper to get future dates for tests
@@ -234,3 +234,167 @@ class ZgloszenieDetailsViewTest(TestCase):
 		response = self.client.get(reverse("zgloszenie_details", kwargs={"token": self.zgloszenie.token}))
 		self.assertContains(response, "Jan")
 		self.assertContains(response, "Kowalski")
+
+	def test_qualified_without_dane_dodatkowe_redirects(self):
+		"""Test że zakwalifikowany bez danych dodatkowych jest przekierowany."""
+		self.zgloszenie.status = Zgloszenie.STATUS_ZAKWALIFIKOWANY
+		self.zgloszenie.save()
+		response = self.client.get(reverse("zgloszenie_details", kwargs={"token": self.zgloszenie.token}))
+		self.assertRedirects(
+			response,
+			reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}),
+		)
+
+	def test_qualified_with_dane_dodatkowe_shows_details(self):
+		"""Test że zakwalifikowany z danymi dodatkowymi widzi szczegóły."""
+		self.zgloszenie.status = Zgloszenie.STATUS_ZAKWALIFIKOWANY
+		self.zgloszenie.save()
+		Dane_Dodatkowe.objects.create(
+			zgloszenie=self.zgloszenie,
+			poz1="90021401384",
+			poz2="paszport",
+			poz3="ABC123456",
+			zgoda_dane_wrazliwe=True,
+		)
+		response = self.client.get(reverse("zgloszenie_details", kwargs={"token": self.zgloszenie.token}))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, "rejs/zgloszenie_details.html")
+
+	def test_niezakwalifikowany_shows_details(self):
+		"""Test że niezakwalifikowany widzi szczegóły bez przekierowania."""
+		self.zgloszenie.status = Zgloszenie.STATUS_NIEZAKWALIFIKOWANY
+		self.zgloszenie.save()
+		response = self.client.get(reverse("zgloszenie_details", kwargs={"token": self.zgloszenie.token}))
+		self.assertEqual(response.status_code, 200)
+
+
+class DaneDodatkoweViewTest(TestCase):
+	"""Testy widoku formularza danych dodatkowych."""
+
+	def setUp(self):
+		self.client = Client()
+		self.rejs = Rejs.objects.create(
+			nazwa="Rejs testowy",
+			od=future_date(30),
+			do=future_date(44),
+			start="Gdynia",
+			koniec="Sztokholm",
+		)
+		self.zgloszenie = Zgloszenie.objects.create(
+			imie="Jan",
+			nazwisko="Kowalski",
+			email="jan@example.com",
+			telefon="123456789",
+			data_urodzenia=datetime.date(1990, 1, 1),
+			rejs=self.rejs,
+			rodo=True,
+			obecnosc="tak",
+		)
+
+	def test_get_form_returns_200(self):
+		"""Test wyświetlania formularza danych dodatkowych."""
+		response = self.client.get(reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}))
+		self.assertEqual(response.status_code, 200)
+		self.assertTemplateUsed(response, "rejs/dane_dodatkowe_form.html")
+
+	def test_get_form_contains_form_instance(self):
+		"""Test czy kontekst zawiera formularz."""
+		response = self.client.get(reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}))
+		self.assertIsInstance(response.context["form"], Dane_DodatkoweForm)
+
+	def test_get_form_contains_zgloszenie(self):
+		"""Test czy kontekst zawiera zgłoszenie."""
+		response = self.client.get(reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}))
+		self.assertEqual(response.context["zgloszenie"], self.zgloszenie)
+
+	def test_get_form_contains_rejs(self):
+		"""Test czy kontekst zawiera rejs."""
+		response = self.client.get(reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}))
+		self.assertEqual(response.context["rejs"], self.rejs)
+
+	def test_invalid_token_returns_404(self):
+		"""Test 404 dla nieprawidłowego tokena."""
+		fake_token = uuid.uuid4()
+		response = self.client.get(reverse("dane_dodatkowe_form", kwargs={"token": fake_token}))
+		self.assertEqual(response.status_code, 404)
+
+	def test_post_valid_form_creates_dane_dodatkowe(self):
+		"""Test że poprawny formularz tworzy dane dodatkowe."""
+		data = {
+			"poz1": "90021401384",
+			"poz2": "paszport",
+			"poz3": "ABC123456",
+			"zgoda_dane_wrazliwe": True,
+		}
+		response = self.client.post(
+			reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}),
+			data,
+		)
+		self.assertEqual(Dane_Dodatkowe.objects.count(), 1)
+		dane = Dane_Dodatkowe.objects.first()
+		self.assertEqual(dane.zgloszenie, self.zgloszenie)
+
+	def test_post_valid_form_redirects_to_details(self):
+		"""Test że poprawny formularz przekierowuje do szczegółów."""
+		data = {
+			"poz1": "90021401384",
+			"poz2": "paszport",
+			"poz3": "ABC123456",
+			"zgoda_dane_wrazliwe": True,
+		}
+		response = self.client.post(
+			reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}),
+			data,
+		)
+		self.assertRedirects(
+			response,
+			reverse("zgloszenie_details", kwargs={"token": self.zgloszenie.token}),
+		)
+
+	def test_post_invalid_form_shows_errors(self):
+		"""Test że niepoprawny formularz pokazuje błędy."""
+		data = {
+			"poz1": "12345678901",  # niepoprawny PESEL
+			"poz2": "paszport",
+			"poz3": "ABC123456",
+			"zgoda_dane_wrazliwe": True,
+		}
+		response = self.client.post(
+			reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}),
+			data,
+		)
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(Dane_Dodatkowe.objects.count(), 0)
+		self.assertIn("poz1", response.context["form"].errors)
+
+	def test_post_without_zgoda_shows_error(self):
+		"""Test że brak zgody pokazuje błąd."""
+		data = {
+			"poz1": "90021401384",
+			"poz2": "paszport",
+			"poz3": "ABC123456",
+			"zgoda_dane_wrazliwe": False,
+		}
+		response = self.client.post(
+			reverse("dane_dodatkowe_form", kwargs={"token": self.zgloszenie.token}),
+			data,
+		)
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(Dane_Dodatkowe.objects.count(), 0)
+
+
+class RodoInfoViewTest(TestCase):
+	"""Testy widoku informacji RODO."""
+
+	def setUp(self):
+		self.client = Client()
+
+	def test_rodo_info_returns_200(self):
+		"""Test czy strona RODO zwraca status 200."""
+		response = self.client.get(reverse("rodo_info"))
+		self.assertEqual(response.status_code, 200)
+
+	def test_rodo_info_uses_correct_template(self):
+		"""Test czy używany jest prawidłowy szablon."""
+		response = self.client.get(reverse("rodo_info"))
+		self.assertTemplateUsed(response, "rejs/rodo_info.html")

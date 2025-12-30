@@ -5,7 +5,9 @@ from django.forms import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 
-from rejs.models import Ogloszenie, Rejs, Wachta, Wplata, Zgloszenie
+from django.contrib.auth import get_user_model
+
+from rejs.models import AuditLog, Dane_Dodatkowe, Ogloszenie, Rejs, Wachta, Wplata, Zgloszenie
 
 
 # Helper to get future dates for tests
@@ -196,3 +198,198 @@ class WplataModelTest(TestCase):
 		"""Test reprezentacji tekstowej wpłaty."""
 		wplata = Wplata.objects.create(zgloszenie=self.zgloszenie, kwota=Decimal("500.00"), rodzaj="wplata")
 		self.assertEqual(str(wplata), "Wpłata: 500.00 zł")
+
+
+class OgloszenieModelTest(TestCase):
+	"""Testy modelu Ogloszenie."""
+
+	def setUp(self):
+		self.rejs = Rejs.objects.create(
+			nazwa="Rejs testowy",
+			od=future_date(30),
+			do=future_date(44),
+			start="Gdynia",
+			koniec="Sztokholm",
+		)
+		self.ogloszenie = Ogloszenie.objects.create(
+			rejs=self.rejs,
+			tytul="Ważne ogłoszenie",
+			text="Treść ogłoszenia dla uczestników rejsu.",
+		)
+
+	def test_str_representation(self):
+		"""Test reprezentacji tekstowej ogłoszenia."""
+		self.assertEqual(str(self.ogloszenie), "Ważne ogłoszenie")
+
+	def test_default_values(self):
+		"""Test domyślnych wartości pól."""
+		ogloszenie = Ogloszenie.objects.create(rejs=self.rejs)
+		self.assertEqual(ogloszenie.tytul, "nowe ogłoszenie")
+		self.assertEqual(ogloszenie.text, "krótka informacja o rejsie")
+
+	def test_data_auto_now_add(self):
+		"""Test automatycznego ustawiania daty."""
+		self.assertIsNotNone(self.ogloszenie.data)
+
+	def test_rejs_relation(self):
+		"""Test relacji z rejsem."""
+		self.assertEqual(self.ogloszenie.rejs, self.rejs)
+		self.assertIn(self.ogloszenie, self.rejs.ogloszenia.all())
+
+
+class Dane_DodatkoweModelTest(TestCase):
+	"""Testy modelu Dane_Dodatkowe z szyfrowaniem."""
+
+	def setUp(self):
+		self.rejs = Rejs.objects.create(
+			nazwa="Rejs testowy",
+			od=future_date(30),
+			do=future_date(44),
+			start="Gdynia",
+			koniec="Sztokholm",
+		)
+		self.zgloszenie = Zgloszenie.objects.create(
+			imie="Jan",
+			nazwisko="Kowalski",
+			email="jan@example.com",
+			telefon="123456789",
+			data_urodzenia=datetime.date(1990, 1, 1),
+			rejs=self.rejs,
+			rodo=True,
+			obecnosc="tak",
+		)
+		self.dane = Dane_Dodatkowe.objects.create(
+			zgloszenie=self.zgloszenie,
+			poz1="90021401384",
+			poz2="paszport",
+			poz3="ABC123456",
+			zgoda_dane_wrazliwe=True,
+		)
+
+	def test_str_representation(self):
+		"""Test reprezentacji tekstowej danych dodatkowych."""
+		expected = f"dane dodatkowe dla zgłoszenia: {self.zgloszenie.id}"
+		self.assertEqual(str(self.dane), expected)
+
+	def test_encrypted_fields_stored_and_retrieved(self):
+		"""Test czy zaszyfrowane pola są poprawnie zapisywane i odczytywane."""
+		dane = Dane_Dodatkowe.objects.get(pk=self.dane.pk)
+		self.assertEqual(dane.poz1, "90021401384")
+		self.assertEqual(dane.poz2, "paszport")
+		self.assertEqual(dane.poz3, "ABC123456")
+
+	def test_masked_pesel(self):
+		"""Test maskowania numeru PESEL."""
+		# PESEL 90021401384: first 2 chars + (11-3=8) asterisks + last char
+		self.assertEqual(self.dane.masked_pesel, "90********4")
+
+	def test_masked_pesel_short(self):
+		"""Test maskowania krótkiego PESEL."""
+		self.dane.poz1 = "12345"
+		self.assertEqual(self.dane.masked_pesel, "12**5")
+
+	def test_masked_dokument(self):
+		"""Test maskowania numeru dokumentu."""
+		self.assertEqual(self.dane.masked_dokument, "A*******6")
+
+	def test_masked_dokument_short(self):
+		"""Test maskowania krótkiego numeru dokumentu."""
+		self.dane.poz3 = "AB1"
+		self.assertEqual(self.dane.masked_dokument, "A*1")
+
+	def test_one_to_one_relation(self):
+		"""Test relacji OneToOne ze zgłoszeniem."""
+		self.assertEqual(self.dane.zgloszenie, self.zgloszenie)
+		self.assertEqual(self.zgloszenie.dane_dodatkowe, self.dane)
+
+	def test_zgoda_dane_wrazliwe_default(self):
+		"""Test domyślnej wartości zgody na dane wrażliwe."""
+		zgloszenie2 = Zgloszenie.objects.create(
+			imie="Anna",
+			nazwisko="Nowak",
+			email="anna@example.com",
+			telefon="987654321",
+			data_urodzenia=datetime.date(1991, 2, 2),
+			rejs=self.rejs,
+			rodo=True,
+			obecnosc="tak",
+		)
+		dane2 = Dane_Dodatkowe.objects.create(
+			zgloszenie=zgloszenie2,
+			poz1="91020212345",
+			poz2="dowod-osobisty",
+			poz3="XYZ789",
+		)
+		self.assertFalse(dane2.zgoda_dane_wrazliwe)
+
+
+class AuditLogModelTest(TestCase):
+	"""Testy modelu AuditLog."""
+
+	def setUp(self):
+		self.user = get_user_model().objects.create_user(
+			username="testuser",
+			email="test@example.com",
+			password="testpass123",
+		)
+
+	def test_str_representation_with_user(self):
+		"""Test reprezentacji tekstowej logu z użytkownikiem."""
+		log = AuditLog.objects.create(
+			uzytkownik=self.user,
+			akcja="odczyt",
+			model_name="Dane_Dodatkowe",
+			object_id=1,
+		)
+		str_repr = str(log)
+		self.assertIn("testuser", str_repr)
+		self.assertIn("Odczyt danych", str_repr)
+		self.assertIn("Dane_Dodatkowe", str_repr)
+
+	def test_str_representation_without_user(self):
+		"""Test reprezentacji tekstowej logu bez użytkownika (systemowy)."""
+		log = AuditLog.objects.create(
+			akcja="usuniecie",
+			model_name="Dane_Dodatkowe",
+		)
+		str_repr = str(log)
+		self.assertIn("System", str_repr)
+		self.assertIn("Usunięcie danych", str_repr)
+
+	def test_akcja_choices(self):
+		"""Test wszystkich dostępnych akcji."""
+		akcje = ["odczyt", "utworzenie", "modyfikacja", "usuniecie", "eksport"]
+		for akcja in akcje:
+			log = AuditLog.objects.create(akcja=akcja, model_name="Test")
+			self.assertEqual(log.akcja, akcja)
+
+	def test_timestamp_auto_set(self):
+		"""Test automatycznego ustawiania timestamp."""
+		log = AuditLog.objects.create(akcja="odczyt", model_name="Test")
+		self.assertIsNotNone(log.timestamp)
+
+	def test_optional_fields(self):
+		"""Test opcjonalnych pól."""
+		log = AuditLog.objects.create(
+			uzytkownik=self.user,
+			akcja="eksport",
+			model_name="Dane_Dodatkowe",
+			object_id=42,
+			object_repr="Jan Kowalski",
+			ip_address="192.168.1.1",
+			user_agent="Mozilla/5.0",
+			szczegoly="Eksport do Excel",
+		)
+		self.assertEqual(log.object_id, 42)
+		self.assertEqual(log.object_repr, "Jan Kowalski")
+		self.assertEqual(log.ip_address, "192.168.1.1")
+		self.assertEqual(log.user_agent, "Mozilla/5.0")
+		self.assertEqual(log.szczegoly, "Eksport do Excel")
+
+	def test_ordering(self):
+		"""Test domyślnego sortowania (najnowsze pierwsze)."""
+		log1 = AuditLog.objects.create(akcja="odczyt", model_name="Test1")
+		log2 = AuditLog.objects.create(akcja="odczyt", model_name="Test2")
+		logs = list(AuditLog.objects.all())
+		self.assertEqual(logs[0], log2)
+		self.assertEqual(logs[1], log1)
