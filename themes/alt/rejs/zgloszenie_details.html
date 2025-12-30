@@ -46,6 +46,26 @@
     <dd class="col-sm-8">{{ zgloszenie.telefon }}</dd>
 
     <dt class="col-sm-4">
+        <i class="bi bi-calendar-date me-1"></i> Data urodzenia:
+    </dt>
+    <dd class="col-sm-8">{{ zgloszenie.data_urodzenia|date:"d.m.Y" }}</dd>
+
+    <dt class="col-sm-4">
+        <i class="bi bi-house-fill me-1"></i> Adres:
+    </dt>
+    <dd class="col-sm-8">{{ zgloszenie.adres }}</dd>
+
+    <dt class="col-sm-4">
+        <i class="bi bi-mailbox me-1"></i> Kod pocztowy:
+    </dt>
+    <dd class="col-sm-8">{{ zgloszenie.kod_pocztowy }}</dd>
+
+    <dt class="col-sm-4">
+        <i class="bi bi-geo-alt-fill me-1"></i> Miejscowość:
+    </dt>
+    <dd class="col-sm-8">{{ zgloszenie.miejscowosc }}</dd>
+
+    <dt class="col-sm-4">
         <i class="bi bi-eye-fill me-1"></i> Status wzroku:
     </dt>
     <dd class="col-sm-8">{{ zgloszenie.get_wzrok_display }}</dd>
@@ -85,6 +105,36 @@
         </dl>
     </div>
 </div>
+
+{% if zgloszenie.wachta %}
+<!-- Sekcja: Wachta -->
+<div class="card mb-4 shadow-sm border-0" aria-labelledby="section-watch">
+    <div class="card-header bg-primary text-white">
+        <h2 class="h5 mb-0">
+            <i class="bi bi-people-fill me-1"></i> Wachta: {{ zgloszenie.wachta.nazwa }}
+        </h2>
+    </div>
+    <div class="card-body">
+        {% if zgloszenie.wachta.czlonkowie.count > 1 %}
+        <dl class="row mb-0">
+            {% for czlonek in zgloszenie.wachta.czlonkowie.all %}
+                {% if czlonek.id != zgloszenie.id %}
+                <dt class="col-sm-5">
+                    <i class="bi bi-person me-1"></i> {{ czlonek.imie }} {{ czlonek.nazwisko }}:
+                </dt>
+                <dd class="col-sm-7">{{ czlonek.get_rola_display }}</dd>
+                {% endif %}
+            {% endfor %}
+        </dl>
+        {% else %}
+        <p class="text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Brak innych członków wachty.
+        </p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
 
 <!-- Sekcja: Informacje o rejsie -->
 <div class="card mb-4 shadow-sm border-0" aria-labelledby="section-cruise">
