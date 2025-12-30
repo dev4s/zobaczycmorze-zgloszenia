@@ -1,47 +1,7 @@
 from django import forms
-from django.core.exceptions import ValidationError
-from django.core.validators import RegexValidator
 
 from .models import Dane_Dodatkowe, Zgloszenie
-
-telefon_validator = RegexValidator(
-	regex=r"^\+?\d{9,15}$",
-	message="Numer telefonu musi zawierać 9-15 cyfr, opcjonalnie z + na początku.",
-)
-
-kod_pocztowy_validator = RegexValidator(
-	regex=r"^\d{2}-\d{3}$",
-	message="Kod pocztowy musi mieć format XX-XXX (np. 00-001).",
-)
-
-
-def validate_pesel(pesel: str) -> str:
-	"""
-	Waliduje numer PESEL zgodnie z polskim algorytmem sumy kontrolnej.
-
-	Algorytm:
-	1. PESEL musi mieć dokładnie 11 cyfr
-	2. Suma kontrolna: każda cyfra mnożona przez wagę [1,3,7,9,1,3,7,9,1,3,1]
-	3. Suma modulo 10 musi równać się 0
-	"""
-	if not pesel:
-		raise ValidationError("Numer PESEL jest wymagany.")
-
-	cleaned = pesel.strip().replace(" ", "").replace("-", "")
-
-	if len(cleaned) != 11:
-		raise ValidationError("Numer PESEL musi składać się z dokładnie 11 cyfr.")
-
-	if not cleaned.isdigit():
-		raise ValidationError("Numer PESEL może zawierać tylko cyfry.")
-
-	wagi = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3, 1]
-	suma = sum(int(cyfra) * waga for cyfra, waga in zip(cleaned, wagi))
-
-	if suma % 10 != 0:
-		raise ValidationError("Nieprawidłowy numer PESEL - błędna suma kontrolna.")
-
-	return cleaned
+from .walidatory import kod_pocztowy_validator, telefon_validator, validate_pesel
 
 
 class ZgloszenieForm(forms.ModelForm):

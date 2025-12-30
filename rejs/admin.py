@@ -1,11 +1,10 @@
 from django import forms
 from django.contrib import admin
 from django.contrib.admin import widgets
-from django.http import HttpResponse
 
 from rejs.reports import generate_rejs_report
 
-from .audit import log_audit
+from .audyt import log_audit
 from .models import (
 	AuditLog,
 	Dane_Dodatkowe,
@@ -15,6 +14,7 @@ from .models import (
 	Wplata,
 	Zgloszenie,
 )
+from .serwisy.wachty import serwis_wacht
 
 
 @admin.action(description="Generuj raport Excel dla rejsu")
@@ -78,18 +78,8 @@ class WachtaForm(forms.ModelForm):
 
 	def save(self, commit=True):
 		instance = super().save(commit=commit)
-		selected = self.cleaned_data.get("czlonkowie", [])
-		current = set(self.instance.czlonkowie.all())
-		to_remove = current - set(selected)
-		for zg in to_remove:
-			zg.wachta = None
-			zg.save(update_fields=["wachta"])
-
-		for zg in selected:
-			if zg.rejs_id != instance.rejs_id:
-				raise forms.ValidationError(f"Zgłoszenie {zg} nie należy do rejsu {instance.rejs}")
-			zg.wachta = instance
-			zg.save(update_fields=["wachta"])
+		selected = list(self.cleaned_data.get("czlonkowie", []))
+		serwis_wacht.aktualizuj_czlonkow_wachty(instance, selected)
 		return instance
 
 

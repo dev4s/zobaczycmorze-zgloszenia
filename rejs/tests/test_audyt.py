@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
 
-from rejs.audit import log_audit
+from rejs.audyt import log_audit
 from rejs.models import AuditLog
 
 

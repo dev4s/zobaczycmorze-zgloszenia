@@ -1,11 +1,7 @@
 """
-Moduł modeli aplikacji rejs.
+Pakiet modeli aplikacji rejs.
 
-Ten plik re-eksportuje wszystkie modele z pakietu modele/ dla zachowania
-kompatybilności wstecznej. Nowe importy powinny używać bezpośrednio:
-    from rejs.modele import Rejs, Zgloszenie, ...
-lub:
-    from rejs.modele.rejs import Rejs
+Eksportuje wszystkie modele dla zachowania kompatybilności wstecznej.
 """
 
 from rejs.modele.audyt import AuditLog
