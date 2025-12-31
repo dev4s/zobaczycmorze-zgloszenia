@@ -78,14 +78,18 @@ class SendSimpleMailTest(TestCase):
 
 	def test_no_email_sent_when_no_templates(self):
 		"""Test braku wysyłki gdy brak szablonów."""
-		send_simple_mail(
-			subject="Test",
-			to_mail="test@example.com",
-			template_base="emails/nonexistent_template",
-			context={},
-		)
+		with self.assertLogs("rejs.mailers", level="WARNING") as logs:
+			send_simple_mail(
+				subject="Test",
+				to_mail="test@example.com",
+				template_base="emails/nonexistent_template",
+				context={},
+			)
 
 		self.assertEqual(len(mail.outbox), 0)
+		# Verify correct warning messages were logged
+		self.assertTrue(any("nonexistent_template.txt" in msg for msg in logs.output))
+		self.assertTrue(any("nonexistent_template.html" in msg for msg in logs.output))
 
 	def test_html_alternative_attached(self):
 		"""Test dołączania alternatywy HTML."""
@@ -144,15 +148,19 @@ class SendSimpleMailTest(TestCase):
 		"""Test rzucania wyjątku przy błędzie wysyłki."""
 		mock_send.side_effect = Exception("SMTP Error")
 
-		with self.assertRaises(Exception) as context:
-			send_simple_mail(
-				subject="Test",
-				to_mail="test@example.com",
-				template_base="emails/zgloszenie_utworzone",
-				context={},
-			)
+		with self.assertLogs("rejs.mailers", level="ERROR") as logs:
+			with self.assertRaises(Exception) as context:
+				send_simple_mail(
+					subject="Test",
+					to_mail="test@example.com",
+					template_base="emails/zgloszenie_utworzone",
+					context={},
+				)
 
 		self.assertIn("SMTP Error", str(context.exception))
+		# Verify error was logged with correct details
+		self.assertTrue(any("Błąd wysyłania emaila" in msg for msg in logs.output))
+		self.assertTrue(any("test@example.com" in msg for msg in logs.output))
 
 	def test_different_templates(self):
 		"""Test różnych szablonów emaili."""
