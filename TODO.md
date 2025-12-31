@@ -12,9 +12,15 @@ Szczegoly w [RODO.md](RODO.md)
 ## Funkcjonalnosc
 
 - [ ] Formularz zgody na przetwarzanie danych wrazliwych (PESEL)
-- [ ] Pola pokazuja "unknown" zamiast pustego (adres, kod_pocztowy, miejscowosc, data_urodzenia)
+- [x] Pola pokazuja "unknown" zamiast pustego (adres, kod_pocztowy, miejscowosc, data_urodzenia)
+  - Zmieniono domyslne wartosci na puste stringi
+  - Dodano migracje z konwersja istniejacych danych
 - [ ] Przeniesienie elementow z motywu Bootstrap do glownego
 
 ## Refaktoryzacja
 
-- [ ] Refaktoryzacja kodu zgodnie z wzorcem MTV (Model-Template-View)
+- [x] Refaktoryzacja kodu zgodnie z wzorcem MTV (Model-Template-View)
+  - Utworzono pakiet `rejs/modele/` (modele podzielone na pliki)
+  - Utworzono pakiet `rejs/serwisy/` (notyfikacje, rejestracja, wachty)
+  - Utworzono pakiet `rejs/walidatory/` (walidatory PESEL i podstawowe)
+  - Optymalizacja wydajnosci (batch emails, bulk_update, original value tracking)

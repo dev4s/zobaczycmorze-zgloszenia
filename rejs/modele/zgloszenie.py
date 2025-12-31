@@ -44,9 +44,9 @@ class Zgloszenie(models.Model):
 	email = models.EmailField(null=False, blank=False, verbose_name="Adres e-mail")
 	telefon = models.CharField(max_length=15, blank=False, null=False, verbose_name="Numer telefonu")
 	data_urodzenia = models.DateField(blank=False, null=False, verbose_name="Data urodzenia")
-	adres = models.CharField(null=False, blank=False, default="unknown")
-	kod_pocztowy = models.CharField(null=False, blank=False, default="00-000", verbose_name="Kod pocztowy")
-	miejscowosc = models.CharField(null=False, blank=False, default="unknown")
+	adres = models.CharField(null=False, blank=False, default="", verbose_name="Adres")
+	kod_pocztowy = models.CharField(null=False, blank=False, default="", verbose_name="Kod pocztowy")
+	miejscowosc = models.CharField(null=False, blank=False, default="", verbose_name="Miejscowość")
 	obecnosc = models.CharField(
 		max_length=3,
 		choices=obecnosc_pola,
