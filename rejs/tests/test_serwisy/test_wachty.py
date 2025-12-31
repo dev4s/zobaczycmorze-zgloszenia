@@ -1,7 +1,10 @@
 import datetime
 
 from django import forms
+from django.core import mail
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 
 from rejs.models import Rejs, Wachta, Zgloszenie
 from rejs.serwisy.wachty import SerwisWacht
@@ -140,3 +143,47 @@ class SerwisWachtTest(TestCase):
 
 		self.assertIsNone(self.zgloszenie.wachta)
 		self.assertEqual(zgloszenie2.wachta, self.wachta)
+
+	def _create_zgloszenie(self, name_suffix):
+		"""Helper do tworzenia zgłoszeń testowych."""
+		return Zgloszenie.objects.create(
+			imie=f"Test{name_suffix}",
+			nazwisko=f"User{name_suffix}",
+			email=f"test{name_suffix}@example.com",
+			telefon=f"12345678{name_suffix}",
+			data_urodzenia=datetime.date(1990, 1, 1),
+			rejs=self.rejs,
+			rodo=True,
+			obecnosc="tak",
+		)
+
+	def test_aktualizuj_czlonkow_wachty_query_count(self):
+		"""Test że aktualizuj_czlonkow_wachty używa stałej liczby zapytań (bulk_update)."""
+		# Wyczyść outbox przed testem (setUp tworzy zgloszenie które wysyła email)
+		mail.outbox.clear()
+
+		# Utwórz 5 członków
+		members = [self._create_zgloszenie(str(i)) for i in range(5)]
+		mail.outbox.clear()  # Wyczyść emaile z tworzenia zgłoszeń
+
+		with CaptureQueriesContext(connection) as context:
+			self.serwis.aktualizuj_czlonkow_wachty(self.wachta, members)
+
+		# Max ~4 zapytania: fetch current + bulk add (+ ewentualnie savepoint)
+		# Z N+1 bugiem byłoby 1 + 5 = 6+ zapytań
+		self.assertLess(len(context), 6, f"Za dużo zapytań: {len(context)}")
+
+	def test_aktualizuj_czlonkow_wachty_no_emails_sent(self):
+		"""Test że bulk update nie wysyła indywidualnych emaili (omija sygnały)."""
+		# Wyczyść outbox
+		mail.outbox.clear()
+
+		# Utwórz członków (to wysyła emaile o utworzeniu)
+		members = [self._create_zgloszenie(str(i)) for i in range(3)]
+		mail.outbox.clear()  # Wyczyść emaile z tworzenia
+
+		# Bulk update nie powinien wysyłać emaili o przypisaniu do wachty
+		self.serwis.aktualizuj_czlonkow_wachty(self.wachta, members)
+
+		# Brak emaili - bulk_update omija sygnały
+		self.assertEqual(len(mail.outbox), 0)

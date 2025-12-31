@@ -69,26 +69,36 @@ class SerwisWacht:
 
 	def aktualizuj_czlonkow_wachty(self, wachta: Wachta, nowi_czlonkowie: list[Zgloszenie]) -> None:
 		"""
-		Aktualizuje listę członków wachty.
+		Aktualizuje listę członków wachty używając bulk_update dla wydajności.
 
 		Usuwa członków którzy nie są na nowej liście i dodaje nowych.
+		Używa bulk_update zamiast pojedynczych save() - nie wywołuje sygnałów,
+		co jest pożądane przy operacjach zbiorczych w adminie.
 
 		Args:
 			wachta: Wachta do aktualizacji
 			nowi_czlonkowie: Lista zgłoszeń które mają być członkami wachty
 		"""
+		from rejs.models import Zgloszenie
+
 		obecni = set(wachta.czlonkowie.all())
 		nowi = set(nowi_czlonkowie)
 
-		# Usuń tych którzy nie są na nowej liście
+		# Usuń tych którzy nie są na nowej liście (bulk_update)
 		do_usuniecia = obecni - nowi
-		for zgloszenie in do_usuniecia:
-			self.usun_czlonka(zgloszenie)
+		if do_usuniecia:
+			for zgloszenie in do_usuniecia:
+				zgloszenie.wachta = None
+			Zgloszenie.objects.bulk_update(list(do_usuniecia), ["wachta"])
 
-		# Dodaj nowych
+		# Dodaj nowych (z walidacją, potem bulk_update)
 		do_dodania = nowi - obecni
-		for zgloszenie in do_dodania:
-			self.przypisz_czlonka(wachta, zgloszenie)
+		if do_dodania:
+			for zgloszenie in do_dodania:
+				if zgloszenie.rejs_id != wachta.rejs_id:
+					raise forms.ValidationError(f"Zgłoszenie {zgloszenie} nie należy do rejsu {wachta.rejs}")
+				zgloszenie.wachta = wachta
+			Zgloszenie.objects.bulk_update(list(do_dodania), ["wachta"])
 
 
 # Domyślna instancja serwisu

@@ -194,3 +194,36 @@ class SignalsTest(TestCase):
 		recipients = [m.to[0] for m in mail.outbox]
 		self.assertIn("jan@example.com", recipients)
 		self.assertIn("anna@example.com", recipients)
+
+	def test_powiadom_o_ogloszeniu_uses_batch_sending(self):
+		"""Test że ogłoszenie używa batch sending (wszystkie emaile wysłane)."""
+		# Utwórz 3 uczestników
+		for i in range(3):
+			Zgloszenie.objects.create(
+				imie=f"User{i}",
+				nazwisko=f"Test{i}",
+				email=f"user{i}@example.com",
+				telefon=f"12345678{i}",
+				data_urodzenia=datetime.date(1990, 1, 1),
+				rejs=self.rejs,
+				rodo=True,
+				obecnosc="tak",
+			)
+		mail.outbox.clear()
+
+		# Utwórz ogłoszenie - wywołuje sygnał
+		Ogloszenie.objects.create(rejs=self.rejs, tytul="Test batch", text="Treść")
+
+		# Wszystkie 3 emaile powinny być wysłane
+		self.assertEqual(len(mail.outbox), 3)
+
+	def test_powiadom_o_ogloszeniu_no_error_when_empty(self):
+		"""Test że ogłoszenie nie powoduje błędu gdy brak uczestników."""
+		# Brak uczestników na tym rejsie
+		mail.outbox.clear()
+
+		# Nie powinno rzucić wyjątku
+		Ogloszenie.objects.create(rejs=self.rejs, tytul="Test empty", text="Treść")
+
+		# Brak emaili
+		self.assertEqual(len(mail.outbox), 0)

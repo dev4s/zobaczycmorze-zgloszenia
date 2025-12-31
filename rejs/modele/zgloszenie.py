@@ -78,6 +78,27 @@ class Zgloszenie(models.Model):
 	if TYPE_CHECKING:
 		wplaty: RelatedManager[Wplata]
 
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		# Śledź oryginalne wartości po załadowaniu z bazy danych
+		# Używane przez sygnały do wykrywania zmian bez dodatkowego zapytania DB
+		self._original_status = self.status if self.pk else None
+		self._original_wachta_id = self.wachta_id if self.pk else None
+
+	def save(self, *args, **kwargs):
+		super().save(*args, **kwargs)
+		# Po zapisie aktualizuj oryginalne wartości dla kolejnych zmian
+		self._original_status = self.status
+		self._original_wachta_id = self.wachta_id
+
+	@classmethod
+	def from_db(cls, db, field_names, values):
+		"""Nadpisuje from_db aby śledzić oryginalne wartości przy ładowaniu z DB."""
+		instance = super().from_db(db, field_names, values)
+		instance._original_status = instance.status
+		instance._original_wachta_id = instance.wachta_id
+		return instance
+
 	@property
 	def suma_wplat(self) -> Decimal:
 		"""Oblicza sumę wpłat minus zwroty (zoptymalizowane - jedno zapytanie SQL)."""

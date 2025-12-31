@@ -11,7 +11,9 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from django.urls import reverse
 
-from rejs.mailers import send_simple_mail
+from django.template.loader import render_to_string
+
+from rejs.mailers import FROM, send_mass_mail_html, send_simple_mail
 
 if TYPE_CHECKING:
 	from rejs.models import Ogloszenie, Wplata, Zgloszenie
@@ -131,15 +133,22 @@ class SerwisNotyfikacji:
 	def powiadom_o_ogloszeniu(self, ogloszenie: Ogloszenie) -> None:
 		"""
 		Wysyła email z nowym ogłoszeniem do wszystkich uczestników rejsu.
+		Używa batch sending dla wydajności (jedno połączenie SMTP).
 
 		Args:
 			ogloszenie: Nowe ogłoszenie
 		"""
 		rejs = ogloszenie.rejs
-		zgloszenia = rejs.zgloszenia.all()
+		zgloszenia = list(rejs.zgloszenia.all())
 
+		if not zgloszenia:
+			return
+
+		subject = f"Nowe ogłoszenie dla rejsu: {rejs.nazwa}"
+
+		# Buduj wszystkie wiadomości
+		messages = []
 		for zgl in zgloszenia:
-			subject = f"Nowe ogłoszenie dla rejsu: {rejs.nazwa}"
 			link = self._zbuduj_link(zgl)
 			context = {
 				"ogloszenie": ogloszenie,
@@ -147,7 +156,12 @@ class SerwisNotyfikacji:
 				"rejs": rejs,
 				"link": link,
 			}
-			send_simple_mail(subject, zgl.email, "emails/ogloszenie", context)
+			txt_content = render_to_string("emails/ogloszenie.txt", context)
+			html_content = render_to_string("emails/ogloszenie.html", context)
+			messages.append((subject, txt_content, html_content, FROM, [zgl.email]))
+
+		# Wyślij wszystkie w jednym połączeniu SMTP
+		send_mass_mail_html(messages)
 
 
 # Domyślna instancja serwisu

@@ -5,27 +5,11 @@ Obsługuje zdarzenia post_save i pre_save dla modeli,
 delegując logikę powiadomień do SerwisNotyfikacji.
 """
 
-from django.db.models.signals import post_save, pre_save
+from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from .models import Ogloszenie, Wplata, Zgloszenie
 from .serwisy.notyfikacje import serwis_notyfikacji
-
-
-@receiver(pre_save, sender=Zgloszenie)
-def zgloszenie_pre_save(sender, instance, **kwargs):
-	"""Zapisuje poprzedni status i wachtę przed zapisem zgłoszenia."""
-	if not instance.pk:
-		instance._old_status = None
-		instance._old_wachta_id = None
-	else:
-		try:
-			old = Zgloszenie.objects.get(pk=instance.pk)
-			instance._old_status = old.status
-			instance._old_wachta_id = old.wachta_id
-		except Zgloszenie.DoesNotExist:
-			instance._old_status = None
-			instance._old_wachta_id = None
 
 
 @receiver(post_save, sender=Zgloszenie)
@@ -39,14 +23,14 @@ def zgloszenie_post_save(sender, instance, created, raw=False, **kwargs):
 		serwis_notyfikacji.powiadom_o_utworzeniu_zgloszenia(instance)
 		return
 
-	# Sprawdzenie zmiany statusu
-	old_status = getattr(instance, "_old_status", None)
-	if old_status is not None and old_status != instance.status:
-		serwis_notyfikacji.powiadom_o_zmianie_statusu(instance, old_status)
+	# Sprawdzenie zmiany statusu (używamy _original_* z __init__ modelu - bez dodatkowego zapytania DB)
+	original_status = getattr(instance, "_original_status", None)
+	if original_status is not None and original_status != instance.status:
+		serwis_notyfikacji.powiadom_o_zmianie_statusu(instance, original_status)
 
 	# Sprawdzenie przypisania do wachty
-	old_wachta_id = getattr(instance, "_old_wachta_id", None)
-	if old_wachta_id is None and instance.wachta_id is not None:
+	original_wachta_id = getattr(instance, "_original_wachta_id", None)
+	if original_wachta_id is None and instance.wachta_id is not None:
 		serwis_notyfikacji.powiadom_o_przypisaniu_wachty(instance)
 
 

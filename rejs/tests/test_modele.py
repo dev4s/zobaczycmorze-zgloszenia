@@ -187,6 +187,43 @@ class ZgloszenieModelTest(TestCase):
 		self.assertIsInstance(zgloszenie.wzrok, str)
 		self.assertNotIn("(", zgloszenie.wzrok)
 
+	def test_original_status_tracked_on_load(self):
+		"""Test że _original_status jest ustawiany przy ładowaniu z bazy."""
+		loaded = Zgloszenie.objects.get(pk=self.zgloszenie.pk)
+		self.assertEqual(loaded._original_status, loaded.status)
+		self.assertEqual(loaded._original_status, Zgloszenie.STATUS_NIEZAKWALIFIKOWANY)
+
+	def test_original_wachta_id_tracked_on_load(self):
+		"""Test że _original_wachta_id jest ustawiany przy ładowaniu z bazy."""
+		wachta = Wachta.objects.create(rejs=self.rejs, nazwa="TestWachta")
+		self.zgloszenie.wachta = wachta
+		self.zgloszenie.save()
+
+		loaded = Zgloszenie.objects.get(pk=self.zgloszenie.pk)
+		self.assertEqual(loaded._original_wachta_id, wachta.id)
+
+	def test_original_values_updated_after_save(self):
+		"""Test że _original_* są aktualizowane po save()."""
+		self.zgloszenie.status = Zgloszenie.STATUS_ZAKWALIFIKOWANY
+		self.zgloszenie.save()
+
+		self.assertEqual(self.zgloszenie._original_status, Zgloszenie.STATUS_ZAKWALIFIKOWANY)
+
+	def test_original_values_none_for_new_instance(self):
+		"""Test że _original_* są None dla nowego obiektu."""
+		new_zgloszenie = Zgloszenie(
+			imie="Test",
+			nazwisko="User",
+			email="test@example.com",
+			telefon="123456789",
+			data_urodzenia=datetime.date(1990, 1, 1),
+			rejs=self.rejs,
+			rodo=True,
+			obecnosc="tak",
+		)
+		self.assertIsNone(new_zgloszenie._original_status)
+		self.assertIsNone(new_zgloszenie._original_wachta_id)
+
 
 class WplataModelTest(TestCase):
 	"""Testy modelu Wplata."""

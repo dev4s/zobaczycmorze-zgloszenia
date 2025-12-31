@@ -3,7 +3,7 @@ from unittest.mock import patch
 from django.core import mail
 from django.test import TestCase, override_settings
 
-from rejs.mailers import send_simple_mail
+from rejs.mailers import send_mass_mail_html, send_simple_mail
 
 
 class SendSimpleMailTest(TestCase):
@@ -206,3 +206,85 @@ class SendSimpleMailTest(TestCase):
 				send_simple_mail("Test", "test@example.com", "nonexistent/template", {})
 
 		self.assertTrue(any("Nie znaleziono szablonu" in msg for msg in logs.output))
+
+
+class SendMassMailHtmlTest(TestCase):
+	"""Testy funkcji send_mass_mail_html."""
+
+	def test_sends_multiple_emails_in_batch(self):
+		"""Test wysyłania wielu emaili w jednym batchu."""
+		messages = [
+			("Subject 1", "Body 1", "<p>HTML 1</p>", "from@example.com", ["user1@example.com"]),
+			("Subject 2", "Body 2", "<p>HTML 2</p>", "from@example.com", ["user2@example.com"]),
+			("Subject 3", "Body 3", "<p>HTML 3</p>", "from@example.com", ["user3@example.com"]),
+		]
+
+		sent_count, failed = send_mass_mail_html(messages)
+
+		self.assertEqual(sent_count, 3)
+		self.assertEqual(len(failed), 0)
+		self.assertEqual(len(mail.outbox), 3)
+
+		# Verify recipients
+		recipients = [m.to[0] for m in mail.outbox]
+		self.assertIn("user1@example.com", recipients)
+		self.assertIn("user2@example.com", recipients)
+		self.assertIn("user3@example.com", recipients)
+
+	def test_returns_zero_for_empty_messages(self):
+		"""Test że pusta lista zwraca 0 wysłanych."""
+		sent_count, failed = send_mass_mail_html([])
+
+		self.assertEqual(sent_count, 0)
+		self.assertEqual(len(failed), 0)
+		self.assertEqual(len(mail.outbox), 0)
+
+	def test_html_alternative_attached(self):
+		"""Test że HTML jest dołączany jako alternatywa."""
+		messages = [
+			("Subject", "Plain text", "<p>HTML content</p>", "from@example.com", ["user@example.com"]),
+		]
+
+		send_mass_mail_html(messages)
+
+		email = mail.outbox[0]
+		self.assertEqual(email.body, "Plain text")
+		html_alternatives = [alt for alt in email.alternatives if alt[1] == "text/html"]
+		self.assertEqual(len(html_alternatives), 1)
+		self.assertIn("HTML content", html_alternatives[0][0])
+
+	def test_continues_on_single_failure(self):
+		"""Test że kontynuuje wysyłkę mimo błędu pojedynczego emaila."""
+		messages = [
+			("Subject 1", "Body 1", None, "from@example.com", ["user1@example.com"]),
+			("Subject 2", "Body 2", None, "from@example.com", ["user2@example.com"]),
+		]
+
+		# Mock send to fail on first email only
+		original_send = mail.EmailMessage.send
+		call_count = [0]
+
+		def mock_send(self, fail_silently=False):
+			call_count[0] += 1
+			if call_count[0] == 1:
+				raise Exception("SMTP Error")
+			return original_send(self, fail_silently)
+
+		with patch.object(mail.EmailMessage, "send", mock_send):
+			with self.assertLogs("rejs.mailers", level="ERROR"):
+				sent_count, failed = send_mass_mail_html(messages)
+
+		self.assertEqual(sent_count, 1)
+		self.assertEqual(len(failed), 1)
+		self.assertIn("user1@example.com", failed[0][0])
+
+	def test_logs_success_count(self):
+		"""Test że loguje liczbę wysłanych emaili."""
+		messages = [
+			("Subject", "Body", None, "from@example.com", ["user@example.com"]),
+		]
+
+		with self.assertLogs("rejs.mailers", level="INFO") as logs:
+			send_mass_mail_html(messages)
+
+		self.assertTrue(any("Wysłano 1 emaili" in msg for msg in logs.output))
