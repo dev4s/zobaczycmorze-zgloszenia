@@ -52,15 +52,17 @@ class ZgloszenieFormTest(TestCase):
 		form = ZgloszenieForm(data=self.get_valid_form_data(telefon="123456789"), initial={"rejs": self.rejs})
 		self.assertTrue(form.is_valid())
 
-	def test_telefon_validation_with_plus(self):
-		"""Test walidacji telefonu z +."""
-		form = ZgloszenieForm(data=self.get_valid_form_data(telefon="+48123456789"), initial={"rejs": self.rejs})
+	def test_telefon_validation_with_spaces(self):
+		"""Test walidacji telefonu ze spacjami."""
+		form = ZgloszenieForm(data=self.get_valid_form_data(telefon="123 456 789"), initial={"rejs": self.rejs})
 		self.assertTrue(form.is_valid())
+		self.assertEqual(form.cleaned_data["telefon"], "+48123456789")
 
-	def test_telefon_validation_15_digits(self):
-		"""Test walidacji telefonu - 15 cyfr."""
-		form = ZgloszenieForm(data=self.get_valid_form_data(telefon="123456789012345"), initial={"rejs": self.rejs})
-		self.assertTrue(form.is_valid())
+	def test_telefon_validation_too_long(self):
+		"""Test walidacji telefonu - za długi (więcej niż 9 cyfr)."""
+		form = ZgloszenieForm(data=self.get_valid_form_data(telefon="1234567890"), initial={"rejs": self.rejs})
+		self.assertFalse(form.is_valid())
+		self.assertIn("telefon", form.errors)
 
 	def test_telefon_validation_invalid_letters(self):
 		"""Test walidacji telefonu - litery."""
@@ -74,10 +76,10 @@ class ZgloszenieFormTest(TestCase):
 		self.assertFalse(form.is_valid())
 
 	def test_telefon_cleans_spaces_and_dashes(self):
-		"""Test czy telefon jest czyszczony ze spacji i myślników."""
+		"""Test czy telefon jest czyszczony ze spacji i myślników i dodawany prefiks +48."""
 		form = ZgloszenieForm(data=self.get_valid_form_data(telefon="123-456-789"), initial={"rejs": self.rejs})
 		self.assertTrue(form.is_valid())
-		self.assertEqual(form.cleaned_data["telefon"], "123456789")
+		self.assertEqual(form.cleaned_data["telefon"], "+48123456789")
 
 	def test_required_fields(self):
 		"""Test wymaganych pól."""

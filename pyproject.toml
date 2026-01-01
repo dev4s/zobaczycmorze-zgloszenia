@@ -55,7 +55,7 @@ openalt = { cmd = "uv run --env-file .env python manage.py openpage", env = { DJ
 
 # Database management
 _delete-db = "python -c \"import pathlib; p=pathlib.Path('db.sqlite3'); p.unlink(missing_ok=True); print('Database deleted.' if not p.exists() else '')\""
-_load-sample-data = "uv run --env-file .env python manage.py loaddata sample_data"
+_load-sample-data = "uv run --env-file .env python manage.py load_sample_data"
 _db-status = "uv run --env-file .env python manage.py db_status"
 
 # Setup commands

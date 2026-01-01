@@ -47,15 +47,13 @@ class ZgloszenieForm(AccessibleFormMixin, forms.ModelForm):
 			"miejscowosc": "Miejscowość",
 			"wzrok": "Status wzroku",
 			"obecnosc": "Udział w poprzednich rejsach",
-			"rodo": "Zgoda na przetwarzanie danych osobowych",
+			"rodo": "Wyrażam zgodę na przetwarzanie moich danych osobowych zgodnie z polityką prywatności Zobaczyć Morze",
 		}
 		help_texts = {
-			"telefon": "Format: 9-15 cyfr, np. 123456789 lub +48123456789",
-			"data_urodzenia": "Podaj datę urodzenia w formacie dd.mm.rrrr (np. 05.10.1990)",
-			"kod_pocztowy": "Format: XX-XXX gdzie X oznacza cyfrę",
+			"telefon": "Wpisz 9 cyfr numeru (bez prefiksu +48)",
+			"kod_pocztowy": "Format: XX-XXX (np. 00-001)",
 			"wzrok": "Wybierz opcję najbliższą Twojej sytuacji",
 			"obecnosc": "Czy brałeś/aś już udział w rejsach Zobaczyć Morze?",
-			"rodo": "Czy zgadzasz się na przetwarzanie danych osobowych?",
 		}
 		widgets = {
 			"imie": forms.TextInput(
@@ -79,35 +77,39 @@ class ZgloszenieForm(AccessibleFormMixin, forms.ModelForm):
 			"telefon": forms.TextInput(
 				attrs={
 					"autocomplete": "tel",
-					"inputmode": "tel",
+					"inputmode": "numeric",
 					"aria-required": "true",
+					"maxlength": "11",
+					"pattern": r"\d{3}\s?\d{3}\s?\d{3}",
+					"title": "9 cyfr numeru telefonu",
 				}
 			),
 			"data_urodzenia": forms.DateInput(
-				format="%d.%m.%Y",
 				attrs={
+					"type": "date",
 					"autocomplete": "bday",
-					"inputmode": "date",
-					"placeholder": "dd.mm.rrrr",
 					"aria-required": "true",
 				},
 			),
 			"adres": forms.TextInput(
 				attrs={
-					"placeholder": "twój adres",
+					"autocomplete": "street-address",
 					"aria-required": "true",
 				}
 			),
 			"kod_pocztowy": forms.TextInput(
 				attrs={
+					"autocomplete": "postal-code",
 					"inputmode": "numeric",
-					"placeholder": "00-001",
 					"aria-required": "true",
+					"maxlength": "6",
+					"pattern": r"\d{2}-\d{3}",
+					"title": "Format: XX-XXX (np. 00-001)",
 				}
 			),
 			"miejscowosc": forms.TextInput(
 				attrs={
-					"placeholder": "miejscowość",
+					"autocomplete": "address-level2",
 					"aria-required": "true",
 				}
 			),
@@ -158,9 +160,13 @@ class ZgloszenieForm(AccessibleFormMixin, forms.ModelForm):
 
 	def clean_telefon(self):
 		telefon = self.cleaned_data.get("telefon", "")
-		cleaned = telefon.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
-		telefon_validator(cleaned)
-		return cleaned
+		# Usuń wszystkie znaki oprócz cyfr
+		cleaned = "".join(c for c in telefon if c.isdigit())
+		# Sprawdź czy mamy dokładnie 9 cyfr
+		if len(cleaned) != 9:
+			raise forms.ValidationError("Numer telefonu musi zawierać dokładnie 9 cyfr.")
+		# Dodaj prefiks +48 i zapisz
+		return f"+48{cleaned}"
 
 	def clean_kod_pocztowy(self):
 		kod = self.cleaned_data.get("kod_pocztowy", "").strip()

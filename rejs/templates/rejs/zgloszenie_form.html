@@ -32,7 +32,7 @@
 </div>
 {% endif %}
 
-<form method="post" novalidate aria-describedby="form-instructions">
+<form method="post" aria-describedby="form-instructions">
     {% csrf_token %}
 
     <p id="form-instructions" class="form-instructions">
@@ -40,6 +40,53 @@
     </p>
 
     {% for field in form %}
+    {% if field.name == 'rodo' %}
+    {# Checkbox RODO - renderowany inline z etykietą #}
+    <div class="form-group form-group-checkbox {% if field.errors %}has-error{% endif %}">
+        {{ field }}
+        <label for="{{ field.id_for_label }}">
+            {{ field.label }}
+            {% if field.field.required %}
+            <span aria-hidden="true" class="required-marker">*</span>
+            <span class="sr-only">(pole wymagane)</span>
+            {% endif %}
+        </label>
+
+        {% if field.errors %}
+        <p id="{{ field.id_for_label }}-error" class="field-error" role="alert">
+            {{ field.errors.0 }}
+        </p>
+        {% endif %}
+    </div>
+    {% elif field.name == 'telefon' %}
+    {# Telefon - pole z prefiksem +48 #}
+    <div class="form-group {% if field.errors %}has-error{% endif %}">
+        <label for="{{ field.id_for_label }}">
+            {{ field.label }}
+            {% if field.field.required %}
+            <span aria-hidden="true" class="required-marker">*</span>
+            <span class="sr-only">(pole wymagane)</span>
+            {% endif %}
+        </label>
+
+        {% if field.help_text %}
+        <p id="{{ field.id_for_label }}-hint" class="field-hint">
+            {{ field.help_text }}
+        </p>
+        {% endif %}
+
+        {% if field.errors %}
+        <p id="{{ field.id_for_label }}-error" class="field-error" role="alert">
+            {{ field.errors.0 }}
+        </p>
+        {% endif %}
+
+        <div class="input-group">
+            <span class="input-prefix" aria-hidden="true">+48</span>
+            {{ field }}
+        </div>
+    </div>
+    {% else %}
     <div class="form-group {% if field.errors %}has-error{% endif %}">
         <label for="{{ field.id_for_label }}">
             {{ field.label }}
@@ -63,10 +110,44 @@
 
         {{ field }}
     </div>
+    {% endif %}
     {% endfor %}
+
+    <div class="info-box" role="note">
+        <p>
+            <strong>Informacja:</strong> Po zakwalifikowaniu na rejs poprosimy Cię o podanie 
+            dodatkowych danych (PESEL, numer dokumentu) niezbędnych do zaokrętowania. 
+            Informacja zostanie wysłana na podany adres e-mail.
+        </p>
+    </div>
 
     <button type="submit" class="button button-primary">
         Wyślij zgłoszenie
     </button>
 </form>
+
+<script>
+// Auto-formatowanie kodu pocztowego: 12345 → 12-345
+document.addEventListener('DOMContentLoaded', function() {
+    const kodPocztowyInput = document.getElementById('id_kod_pocztowy');
+    if (kodPocztowyInput) {
+        kodPocztowyInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // tylko cyfry
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '-' + value.slice(2, 5);
+            }
+            e.target.value = value;
+        });
+    }
+
+    // Ograniczenie telefonu do cyfr i spacji
+    const telefonInput = document.getElementById('id_telefon');
+    if (telefonInput) {
+        telefonInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d\s]/g, ''); // tylko cyfry i spacje
+            e.target.value = value.slice(0, 11); // max 11 znaków (9 cyfr + 2 spacje)
+        });
+    }
+});
+</script>
 {% endblock %}

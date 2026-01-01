@@ -51,7 +51,7 @@
 </div>
 {% endif %}
 
-<form method="post" novalidate aria-describedby="form-instructions">
+<form method="post" aria-describedby="form-instructions">
     {% csrf_token %}
 
     <p id="form-instructions" class="text-muted mb-4">
@@ -59,6 +59,53 @@
     </p>
 
     {% for field in form %}
+    {% if field.name == 'rodo' %}
+    {# Checkbox RODO - renderowany inline z etykietą #}
+    <div class="mb-3 form-check">
+        {{ field }}
+        <label for="{{ field.id_for_label }}" class="form-check-label">
+            {{ field.label }}
+            {% if field.field.required %}
+                <span class="text-danger">*</span>
+                <span class="visually-hidden">(pole wymagane)</span>
+            {% endif %}
+        </label>
+
+        {% if field.errors %}
+        <div class="invalid-feedback d-block">
+            {{ field.errors.0 }}
+        </div>
+        {% endif %}
+    </div>
+    {% elif field.name == 'telefon' %}
+    {# Telefon - pole z prefiksem +48 #}
+    <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">
+            {{ field.label }}
+            {% if field.field.required %}
+                <span class="text-danger">*</span>
+                <span class="visually-hidden">(pole wymagane)</span>
+            {% endif %}
+        </label>
+
+        {% if field.help_text %}
+        <div class="form-text">
+            {{ field.help_text }}
+        </div>
+        {% endif %}
+
+        {% if field.errors %}
+        <div class="invalid-feedback d-block">
+            {{ field.errors.0 }}
+        </div>
+        {% endif %}
+
+        <div class="input-group">
+            <span class="input-group-text" aria-hidden="true">+48</span>
+            {{ field }}
+        </div>
+    </div>
+    {% else %}
     <div class="mb-3">
         <label for="{{ field.id_for_label }}" class="form-label">
             {{ field.label }}
@@ -82,10 +129,42 @@
 
         {{ field }}
     </div>
+    {% endif %}
     {% endfor %}
+
+    <div class="alert alert-info" role="note">
+        <strong>Informacja:</strong> Po zakwalifikowaniu na rejs poprosimy Cię o podanie 
+        dodatkowych danych (PESEL, numer dokumentu) niezbędnych do zaokrętowania. 
+        Informacja zostanie wysłana na podany adres e-mail.
+    </div>
 
     <button type="submit" class="btn btn-primary btn-lg">
         Wyślij zgłoszenie
     </button>
 </form>
+
+<script>
+// Auto-formatowanie kodu pocztowego: 12345 → 12-345
+document.addEventListener('DOMContentLoaded', function() {
+    const kodPocztowyInput = document.getElementById('id_kod_pocztowy');
+    if (kodPocztowyInput) {
+        kodPocztowyInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, ''); // tylko cyfry
+            if (value.length > 2) {
+                value = value.slice(0, 2) + '-' + value.slice(2, 5);
+            }
+            e.target.value = value;
+        });
+    }
+
+    // Ograniczenie telefonu do cyfr i spacji
+    const telefonInput = document.getElementById('id_telefon');
+    if (telefonInput) {
+        telefonInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/[^\d\s]/g, ''); // tylko cyfry i spacje
+            e.target.value = value.slice(0, 11); // max 11 znaków (9 cyfr + 2 spacje)
+        });
+    }
+});
+</script>
 {% endblock %}
